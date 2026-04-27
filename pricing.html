@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Pricing — GoCharting</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap"/>
+<style>
+  :root {
+    --bg-page:    #0B0716;
+    --bg-alt:     #110B1F;
+    --bg-card:    #181029;
+    --bg-raised:  #1F1535;
+    --bg-hover:   #271A40;
+    --bg-ink:     #280858;
+    --border:     #2A1F44;
+    --border-strong: #3D2D5E;
+    --border-subtle: #1E1632;
+    --text:       #ECE6F5;
+    --text-2:     #9A8FB3;
+    --text-3:     #685A82;
+    --accent:     #763DFD;
+    --accent-hov: #8B5BFF;
+    --accent-act: #5C28D9;
+    --accent-soft: rgba(118,61,253,0.14);
+    --accent-glow: rgba(118,61,253,0.45);
+    --bull:       #26A69A;
+    --bear:       #EF5350;
+    --warn:       #FFB300;
+    --font-sans:  'Inter', -apple-system, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
+    --font-mono:  'JetBrains Mono', 'SF Mono', Consolas, monospace;
+    --ease:       cubic-bezier(0.2,0,0,1);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: var(--font-sans);
+    background: var(--bg-page);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  a { color: var(--accent); text-decoration: none; transition: color 120ms var(--ease); }
+  a:hover { color: var(--accent-hov); }
+  button { font-family: inherit; }
+  .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  .eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-2); }
+
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+
+  /* ─── header ─────────────────────────────────────────────────────── */
+  .site-header {
+    position: sticky; top: 0; z-index: 50;
+    height: 64px;
+    background: rgba(11,7,22,0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+  }
+  .site-header .container { height: 100%; display: flex; align-items: center; justify-content: space-between; }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand-text { font-weight: 700; font-size: 17px; letter-spacing: -0.02em; color: var(--text); }
+  .nav { display: flex; gap: 24px; }
+  .nav a { color: var(--text-2); font-size: 13px; font-weight: 500; padding: 6px 0; }
+  .nav a:hover { color: var(--text); }
+  .nav a.active { color: var(--text); }
+  .header-actions { display: flex; align-items: center; gap: 12px; }
+  @media (max-width: 720px) { .nav { display: none; } }
+
+  /* ─── buttons ────────────────────────────────────────────────────── */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    height: 40px; padding: 0 18px;
+    font-size: 13px; font-weight: 600; letter-spacing: -0.005em;
+    border-radius: 3px; border: 1px solid transparent;
+    cursor: pointer; white-space: nowrap;
+    transition: background 120ms var(--ease), border-color 120ms var(--ease), color 120ms var(--ease);
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-hov); }
+  .btn-primary:active { background: var(--accent-act); }
+  .btn-secondary { background: transparent; color: var(--text); border-color: var(--border-strong); }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-ghost { background: transparent; color: var(--text-2); }
+  .btn-ghost:hover { color: var(--text); }
+  .btn-sm { height: 32px; padding: 0 12px; font-size: 12px; }
+  .btn-block { width: 100%; }
+  .btn-lg { height: 46px; padding: 0 22px; font-size: 14px; }
+
+  /* ─── hero ───────────────────────────────────────────────────────── */
+  .hero {
+    position: relative;
+    padding: 96px 0 80px;
+    background:
+      radial-gradient(ellipse 800px 400px at 80% 0%, rgba(118,61,253,0.22), transparent 60%),
+      radial-gradient(ellipse 600px 300px at 0% 100%, rgba(40,8,88,0.6), transparent 60%),
+      linear-gradient(180deg, #0B0716 0%, #110B1F 100%);
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero::before {
+    content: ''; position: absolute; inset: 0;
+    background-image:
+      linear-gradient(to right, rgba(61,45,94,0.4) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(61,45,94,0.4) 1px, transparent 1px);
+    background-size: 40px 40px;
+    -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 80%);
+            mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 80%);
+    pointer-events: none;
+    opacity: 0.7;
+  }
+  .hero .container { position: relative; z-index: 1; text-align: center; max-width: 880px; }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 5px 12px; border-radius: 999px;
+    background: var(--accent-soft); border: 1px solid var(--border-strong);
+    font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent);
+    margin-bottom: 24px;
+  }
+  .hero-eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+  .hero h1 {
+    margin: 0 0 20px;
+    font-size: clamp(40px, 6vw, 64px);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    color: var(--text);
+  }
+  .hero h1 .accent { color: var(--accent); }
+  .hero p.sub {
+    margin: 0 auto 32px;
+    max-width: 640px;
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--text-2);
+  }
+  .hero-ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .hero-note { margin-top: 14px; font-size: 12px; color: var(--text-3); display: flex; gap: 6px; align-items: center; justify-content: center; }
+  .hero-note .check { color: var(--bull); font-weight: 700; }
+
+  /* ─── section base ───────────────────────────────────────────────── */
+  section { padding: 96px 0; }
+  section.tight { padding: 64px 0; }
+  .section-head { text-align: center; margin-bottom: 48px; }
+  .section-head h2 {
+    margin: 0 0 12px;
+    font-size: clamp(28px, 3.8vw, 40px); font-weight: 700;
+    line-height: 1.15; letter-spacing: -0.025em; color: var(--text);
+  }
+  .section-head p { margin: 0 auto; max-width: 640px; color: var(--text-2); font-size: 16px; }
+
+  /* ─── billing toggle ─────────────────────────────────────────────── */
+  .billing-wrap { display: flex; flex-direction: column; align-items: center; gap: 14px; margin-bottom: 40px; }
+  .billing-toggle {
+    display: inline-flex;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 4px; padding: 4px;
+  }
+  .billing-toggle button {
+    position: relative;
+    height: 36px; padding: 0 18px;
+    background: transparent; border: none; color: var(--text-2);
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    border-radius: 3px;
+    transition: color 120ms var(--ease), background 120ms var(--ease);
+    display: inline-flex; align-items: center; gap: 8px;
+    white-space: nowrap;
+  }
+  .billing-toggle button:hover { color: var(--text); }
+  .billing-toggle button.active {
+    background: var(--accent); color: #fff;
+    box-shadow: 0 4px 12px rgba(118,61,253,0.35);
+  }
+  .billing-toggle .best-value {
+    font-size: 9px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 2px 6px; border-radius: 2px;
+    background: rgba(255,255,255,0.18); color: #fff;
+  }
+  .billing-toggle button:not(.active) .best-value {
+    background: var(--accent-soft); color: var(--accent);
+  }
+  .billing-helper { font-size: 12px; color: var(--text-3); }
+
+  /* ─── tier grid ──────────────────────────────────────────────────── */
+  .tiers { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; align-items: stretch; }
+  @media (max-width: 1080px) { .tiers { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px)  { .tiers { grid-template-columns: 1fr; } }
+
+  .tier {
+    position: relative;
+    display: flex; flex-direction: column; gap: 18px;
+    padding: 28px 24px;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 6px;
+    transition: border-color 200ms var(--ease), transform 200ms var(--ease);
+  }
+  .tier:hover { border-color: var(--border-strong); }
+  .tier.featured {
+    border-color: var(--accent);
+    background: linear-gradient(180deg, rgba(118,61,253,0.06) 0%, var(--bg-card) 60%);
+    box-shadow: 0 0 0 1px var(--accent), 0 16px 48px rgba(118,61,253,0.18);
+    transform: translateY(-8px);
+  }
+  @media (max-width: 1080px) { .tier.featured { transform: none; } }
+  .tier-badge {
+    position: absolute; top: -10px; left: 24px;
+    padding: 4px 10px; border-radius: 2px;
+    background: var(--accent); color: #fff;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .tier-badge.deal { background: var(--bull); color: #0B0716; }
+  .tier-name { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-2); }
+  .tier.featured .tier-name { color: var(--accent); }
+  .tier-tagline { margin-top: -10px; font-size: 13px; color: var(--text-2); min-height: 38px; }
+
+  .price-row { display: flex; align-items: baseline; gap: 6px; min-height: 70px; }
+  .price-currency { font-family: var(--font-mono); font-size: 22px; font-weight: 600; color: var(--text); }
+  .price-amount { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 56px; font-weight: 700; color: var(--text); line-height: 1; letter-spacing: -0.02em; }
+  .price-period { font-size: 13px; color: var(--text-3); margin-left: 2px; }
+
+  .price-note { font-size: 12px; color: var(--text-3); min-height: 18px; }
+  .price-note .save { color: var(--bull); font-weight: 600; }
+  .price-note .strike { text-decoration: line-through; color: var(--text-3); margin-right: 6px; }
+
+  .tier ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+  .tier li { font-size: 13px; color: var(--text); display: flex; align-items: flex-start; gap: 10px; line-height: 1.45; }
+  .tier li .tick { flex-shrink: 0; width: 14px; height: 14px; margin-top: 2px; color: var(--accent); }
+  .tier li .tick.muted { color: var(--text-3); }
+  .tier li .label { color: var(--text); }
+  .tier li .meta { color: var(--text-2); font-size: 12px; margin-left: 4px; }
+  .tier li.muted .label { color: var(--text-3); text-decoration: line-through; }
+
+  .tier-cta { margin-top: auto; }
+
+  /* ─── comparison table ───────────────────────────────────────────── */
+  .compare-wrap {
+    background: var(--bg-alt); border: 1px solid var(--border);
+    border-radius: 6px; overflow: hidden;
+  }
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .compare-table thead th {
+    background: var(--bg-card);
+    padding: 18px 16px; text-align: center;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-2);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 64px; z-index: 5;
+  }
+  .compare-table thead th:first-child { text-align: left; padding-left: 24px; }
+  .compare-table thead th.featured { color: var(--accent); background: linear-gradient(180deg, rgba(118,61,253,0.10), var(--bg-card)); }
+  .compare-table tbody tr.group td {
+    background: var(--bg-card);
+    padding: 12px 24px; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .compare-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--text);
+    text-align: center;
+  }
+  .compare-table td:first-child { text-align: left; padding-left: 24px; color: var(--text); }
+  .compare-table td.featured { background: rgba(118,61,253,0.04); }
+  .compare-table .check { color: var(--bull); font-weight: 700; font-size: 14px; }
+  .compare-table .dash { color: var(--text-3); font-size: 14px; }
+  .compare-table .num-cell { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 12px; color: var(--text); font-weight: 600; }
+  .compare-table tbody tr:not(.group):hover td { background: rgba(118,61,253,0.04); }
+  .compare-table tbody tr:not(.group):hover td.featured { background: rgba(118,61,253,0.08); }
+  .compare-row-meta { display: block; font-size: 11px; color: var(--text-3); margin-top: 2px; }
+
+  /* ─── browser callout ────────────────────────────────────────────── */
+  .browser-callout {
+    background:
+      radial-gradient(ellipse 600px 200px at 100% 50%, rgba(118,61,253,0.18), transparent 60%),
+      var(--bg-alt);
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    padding: 56px 48px;
+    display: grid; grid-template-columns: 1.4fr 1fr; gap: 48px; align-items: center;
+  }
+  @media (max-width: 880px) { .browser-callout { grid-template-columns: 1fr; padding: 40px 24px; } }
+  .browser-callout h3 { margin: 0 0 16px; font-size: 30px; font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; color: var(--text); }
+  .browser-callout h3 .accent { color: var(--accent); }
+  .browser-callout p { margin: 0; color: var(--text-2); font-size: 15px; line-height: 1.55; }
+  .browser-callout .compare-strip {
+    display: flex; flex-direction: column; gap: 8px;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 4px; padding: 18px;
+  }
+  .compare-strip-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 0; border-bottom: 1px solid var(--border-subtle); font-size: 13px; }
+  .compare-strip-row:last-child { border-bottom: none; }
+  .compare-strip-row .name { color: var(--text); font-weight: 500; }
+  .compare-strip-row .stat { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+  .stat.win { color: var(--accent); }
+  .stat.lose { color: var(--text-3); }
+  .compare-strip-row.us .name { color: var(--accent); font-weight: 700; }
+
+  /* ─── data fees ──────────────────────────────────────────────────── */
+  .data-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  @media (max-width: 1080px) { .data-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px)  { .data-grid { grid-template-columns: 1fr; } }
+  .data-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; padding: 24px; }
+  .data-card h4 { margin: 0 0 12px; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-2); }
+  .data-card ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+  .data-card li { font-size: 13px; color: var(--text); display: flex; gap: 8px; align-items: flex-start; line-height: 1.45; }
+  .data-card li .pre {
+    flex-shrink: 0; width: 14px; height: 14px; border-radius: 50%; margin-top: 3px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700;
+  }
+  .pre.inc { background: rgba(38,166,154,0.18); color: var(--bull); }
+  .pre.add { background: rgba(255,179,0,0.18); color: var(--warn); }
+  .data-foot { margin-top: 16px; padding: 16px 20px; background: var(--bg-alt); border: 1px solid var(--border); border-radius: 4px; font-size: 12px; color: var(--text-2); display: flex; gap: 10px; align-items: center; }
+  .data-foot .ind { width: 6px; height: 6px; background: var(--bull); border-radius: 50%; }
+
+  /* ─── prop firm callout ──────────────────────────────────────────── */
+  .prop-callout {
+    position: relative;
+    background:
+      radial-gradient(ellipse 500px 300px at 90% 50%, rgba(118,61,253,0.18), transparent 60%),
+      linear-gradient(135deg, var(--bg-ink) 0%, var(--bg-card) 100%);
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    padding: 56px 48px;
+    display: grid; grid-template-columns: 1.4fr auto; gap: 32px; align-items: center;
+    overflow: hidden;
+  }
+  @media (max-width: 880px) { .prop-callout { grid-template-columns: 1fr; padding: 40px 24px; gap: 24px; } }
+  .prop-callout::before {
+    content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 4px; background: var(--accent);
+  }
+  .prop-callout .eyebrow { color: var(--accent); margin-bottom: 12px; }
+  .prop-callout h3 { margin: 0 0 14px; font-size: 28px; font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; color: var(--text); }
+  .prop-callout p { margin: 0; color: var(--text-2); font-size: 15px; line-height: 1.55; max-width: 560px; }
+
+  /* ─── testimonials ───────────────────────────────────────────────── */
+  .testi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 880px) { .testi-grid { grid-template-columns: 1fr; } }
+  .testi {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 6px; padding: 28px;
+    display: flex; flex-direction: column; gap: 20px;
+  }
+  .testi .quote-mark { font-family: var(--font-mono); font-size: 36px; line-height: 0.5; color: var(--accent); margin-bottom: -8px; }
+  .testi blockquote { margin: 0; font-size: 15px; line-height: 1.55; color: var(--text); flex: 1; }
+  .testi .attr { display: flex; flex-direction: column; gap: 2px; padding-top: 16px; border-top: 1px solid var(--border-subtle); }
+  .testi .attr .who { font-size: 13px; font-weight: 600; color: var(--text); }
+  .testi .attr .role { font-size: 12px; color: var(--text-2); }
+
+  /* ─── video ──────────────────────────────────────────────────────── */
+  .video-frame {
+    position: relative;
+    width: 100%;
+    display: block;
+    aspect-ratio: 16 / 9;
+    padding: 0;
+    background:
+      radial-gradient(ellipse 800px 400px at 50% 50%, rgba(118,61,253,0.18), transparent 60%),
+      linear-gradient(135deg, var(--bg-card), var(--bg-alt));
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .video-frame > * { position: relative; z-index: 1; }
+  .video-frame::before {
+    content: ''; position: absolute; inset: 0;
+    background-image:
+      linear-gradient(to right, rgba(61,45,94,0.4) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(61,45,94,0.4) 1px, transparent 1px);
+    background-size: 32px 32px;
+    -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 30%, transparent 80%);
+            mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 30%, transparent 80%);
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  .play-button {
+    position: relative; z-index: 1;
+    width: 84px; height: 84px; border-radius: 50%;
+    background: var(--accent); border: none;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 0 0 12px rgba(118,61,253,0.18), 0 16px 48px rgba(118,61,253,0.4);
+    transition: transform 200ms var(--ease), box-shadow 200ms var(--ease);
+  }
+  .play-button:hover { transform: scale(1.08); box-shadow: 0 0 0 16px rgba(118,61,253,0.22), 0 16px 48px rgba(118,61,253,0.5); }
+  .play-button svg { color: #fff; margin-left: 4px; }
+  .video-meta { position: absolute; bottom: 24px; left: 24px; right: 24px; z-index: 1; display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; }
+  .video-meta .cap { font-size: 13px; color: var(--text-2); max-width: 480px; line-height: 1.45; }
+  .video-meta .duration { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 11px; color: var(--text); padding: 4px 10px; background: rgba(11,7,22,0.7); border: 1px solid var(--border); border-radius: 2px; backdrop-filter: blur(4px); }
+
+  /* ─── faq ────────────────────────────────────────────────────────── */
+  .faq-list { display: flex; flex-direction: column; gap: 8px; max-width: 880px; margin: 0 auto; }
+  .faq-item {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 4px;
+    overflow: hidden;
+    transition: border-color 120ms var(--ease);
+  }
+  .faq-item.open { border-color: var(--border-strong); }
+  .faq-q {
+    width: 100%;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 18px 22px;
+    background: transparent; border: none; cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    color: var(--text); font-size: 15px; font-weight: 500;
+  }
+  .faq-q:hover { background: var(--bg-hover); }
+  .faq-q .chev { flex-shrink: 0; color: var(--text-2); transition: transform 200ms var(--ease), color 120ms var(--ease); }
+  .faq-item.open .faq-q .chev { transform: rotate(180deg); color: var(--accent); }
+  .faq-a {
+    max-height: 0; overflow: hidden;
+    transition: max-height 280ms var(--ease);
+  }
+  .faq-a-inner {
+    padding: 0 22px 20px;
+    color: var(--text-2); font-size: 14px; line-height: 1.6;
+  }
+
+  /* ─── final cta ──────────────────────────────────────────────────── */
+  .final-cta {
+    background:
+      radial-gradient(ellipse 700px 320px at 50% 100%, rgba(118,61,253,0.22), transparent 60%),
+      linear-gradient(180deg, var(--bg-alt) 0%, var(--bg-page) 100%);
+    border-top: 1px solid var(--border);
+    text-align: center;
+    padding: 96px 32px;
+  }
+  .final-cta h2 { margin: 0 0 14px; font-size: clamp(28px, 4vw, 44px); font-weight: 700; line-height: 1.1; letter-spacing: -0.025em; }
+  .final-cta h2 .accent { color: var(--accent); }
+  .final-cta p { margin: 0 0 28px; color: var(--text-2); font-size: 16px; }
+
+  /* ─── footer ─────────────────────────────────────────────────────── */
+  .site-footer {
+    background: var(--bg-page);
+    border-top: 1px solid var(--border);
+    padding: 48px 0 32px;
+    color: var(--text-2);
+    font-size: 12px;
+  }
+  .site-footer .container { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+  .footer-links { display: flex; gap: 20px; }
+  .footer-links a { color: var(--text-2); }
+  .footer-links a:hover { color: var(--text); }
+</style>
+</head>
+<body>
+
+<!-- Logo (inlined SVG symbols so no external assets) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-logo" viewBox="0 0 64 64">
+    <circle cx="32" cy="32" r="32" fill="#763DFD"/>
+    <path d="M18 40 L26 32 L31 36 L42 22" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <path d="M36 22 L42 22 L42 28" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  </symbol>
+  <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="5 12 10 17 19 7"/>
+  </symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="5" y1="12" x2="19" y2="12"/>
+    <polyline points="13 6 19 12 13 18"/>
+  </symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="6 9 12 15 18 9"/>
+  </symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><polygon points="6 4 20 12 6 20" fill="currentColor"/></symbol>
+</svg>
+
+<!-- ============================== HEADER ============================== -->
+<header class="site-header">
+  <div class="container">
+    <a href="#" class="brand">
+      <svg width="28" height="28"><use href="#i-logo"/></svg>
+      <span class="brand-text">GoCharting</span>
+    </a>
+    <nav class="nav">
+      <a href="#">Platform</a>
+      <a href="#">Markets</a>
+      <a href="#" class="active">Pricing</a>
+      <a href="#">Brokers</a>
+      <a href="#">Learn</a>
+    </nav>
+    <div class="header-actions">
+      <a href="#" class="btn btn-ghost btn-sm">Sign in</a>
+      <a href="#" class="btn btn-primary btn-sm">Start free</a>
+    </div>
+  </div>
+</header>
+
+<!-- ============================== HERO ============================== -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-eyebrow"><span class="dot"></span>Pricing</div>
+    <h1>Professional orderflow tools.<br/><span class="accent">In your browser.</span></h1>
+    <p class="sub">Footprint charts, DOM, volume profile, and live trading — no install, any device. Start on the free plan, upgrade only when you outgrow it.</p>
+    <div class="hero-ctas">
+      <a href="#tiers" class="btn btn-primary btn-lg">Start free</a>
+      <a href="#compare" class="btn btn-secondary btn-lg">See the platform <svg width="14" height="14"><use href="#i-arrow"/></svg></a>
+    </div>
+    <div class="hero-note"><span class="check">✓</span> No credit card required · Free forever, no time limits</div>
+  </div>
+</section>
+
+<!-- ============================== TIERS ============================== -->
+<section id="tiers">
+  <div class="container">
+
+    <div class="billing-wrap">
+      <div class="billing-toggle" role="tablist" aria-label="Billing period">
+        <button data-billing="monthly" role="tab" aria-selected="false">Monthly</button>
+        <button data-billing="semi" role="tab" aria-selected="false">Semi-Annual</button>
+        <button data-billing="annual" role="tab" aria-selected="true" class="active">
+          Annual <span class="best-value">Best Value</span>
+        </button>
+      </div>
+      <div class="billing-helper" id="billing-helper">Billed annually — save up to $120/year vs monthly</div>
+    </div>
+
+    <div class="tiers">
+
+      <!-- FREE -->
+      <article class="tier" data-tier="free">
+        <div class="tier-name">Free</div>
+        <div class="tier-tagline">Real charts, no time limits. Get a feel for the platform.</div>
+        <div class="price-row">
+          <span class="price-currency">$</span>
+          <span class="price-amount">0</span>
+          <span class="price-period">forever</span>
+        </div>
+        <div class="price-note">Email registration required</div>
+        <ul>
+          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Standard candlestick & line charts</span></li>
+          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">15 of 130+ indicators</span></li>
+          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Delayed market data (15-min)</span></li>
+          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">3 saved layouts</span></li>
+          <li><svg class="tick muted"><use href="#i-check"/></svg><span class="label" style="color:var(--text-3)">No footprint, DOM, or volume profile</span></li>
+          <li><svg class="tick muted"><use href="#i-check"/></svg><span class="label" style="color:var(--text-3)">No live trading</span></li>
+        </ul>
+        <a href="#" class="btn btn-secondary btn-block tier-cta">Start free</a>
+      </article>
+
+      <!-- STARTER -->
+      <article class="tier" data-tier="starter">
+        <div class="tier-name">Starter</div>
+        <div class="tier-tagline">Core orderflow for the part-time, after-hours trader.</div>
+        <div class="price-row">
+          <span class="price-currency">$</span>
+          <span class="price-amount" data-price="starter">24</span>
+          <span class="price-period" data-period>/mo</span>
+        </div>
+        <div class="price-note" data-savings="starter"><span class="strike">$29</span><span class="save">Save $60/yr</span></div>
+        <ul>
+          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Footprint & cluster charts</span></li>
+          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">DOM (Depth of Market)</span></li>
+          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Volume profile (session & visible-range)</span></li>
+          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">All 130+ indicators</span></li>
+          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">1 broker connection</span></li>
+          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Email support</span></li>
+        </ul>
+        <a href="#" class="btn btn-secondary btn-block tier-cta">Get Starter</a>
+      </article>
+
+      <!-- PRO -->
+      <article class="tier featured" data-tier="pro">
+        <div class="tier-badge">Most popular</div>
+        <div class="tier-name">Pro</div>
+        <div class="tier-tagline">The full orderflow workstation. Multi-broker, priority support.</div>
+        <div class="price-row">
+          <span class="price-currency">$</span>
+          <span class="price-amount" data-price="pro">49</span>
+          <span class="price-period" data-period>/mo</span>
+        </div>
+        <div class="price-note" data-savings="pro"><span class="strike">$59</span><span class="save">Save $120/yr</span></div>
+        <ul>
+          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Everything in Starter</span></li>
+          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Market profile (TPO) & delta/CVD</span></li>
+          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Renko, Kagi, Heikin Ashi, Tick charts</span></li>
+          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Unlimited broker connections</span></li>
+          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Replay mode + multi-session</span></li>
+          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Priority chat support</span></li>
+        </ul>
+        <a href="#" class="btn btn-primary btn-block tier-cta">Get Pro</a>
+      </article>
+
+      <!-- LIFETIME -->
+      <article class="tier" data-tier="lifetime">
+        <div class="tier-badge deal">Best deal</div>
+        <div class="tier-name">Lifetime</div>
+        <div class="tier-tagline">One payment. Full Pro access, every future update, forever.</div>
+        <div class="price-row">
+          <span class="price-currency">$</span>
+          <span class="price-amount">799</span>
+          <span class="price-period">once</span>
+        </div>
+        <div class="price-note"><span class="save">Pays for itself in ~16 months</span></div>
+        <ul>
+          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Everything in Pro</span></li>
+          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">All future major releases included</span></li>
+          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Lifetime priority support</span></li>
+          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Transferable to one heir account</span></li>
+          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">No renewal, no auto-billing, ever</span></li>
+          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Founder Discord access</span></li>
+        </ul>
+        <a href="#" class="btn btn-secondary btn-block tier-cta">Buy Lifetime</a>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============================== COMPARISON ============================== -->
+<section id="compare" style="padding-top: 0;">
+  <div class="container">
+    <div class="section-head">
+      <h2>Compare every feature.</h2>
+      <p>The full breakdown — what's in each tier, no asterisks, no upsells hidden behind "Contact sales."</p>
+    </div>
+    <div class="compare-wrap">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Free</th>
+            <th>Starter</th>
+            <th class="featured">Pro</th>
+            <th>Lifetime</th>
+          </tr>
+        </thead>
+        <tbody id="compare-body">
+          <!-- groups + rows injected by JS for compactness -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== BROWSER CALLOUT ============================== -->
+<section class="tight">
+  <div class="container">
+    <div class="browser-callout">
+      <div>
+        <div class="eyebrow" style="color:var(--accent); margin-bottom: 14px;">Web-native, by design</div>
+        <h3>No download. No Windows VM.<br/><span class="accent">Just open a tab.</span></h3>
+        <p>While MotiveWave, ATAS, and MultiCharts all require a Windows install, GoCharting opens in any modern browser — Mac, Linux, Chromebook, even an iPad. No IT setup, no licensing keys tied to a specific machine. Switch desks, your workspace follows you.</p>
+      </div>
+      <div class="compare-strip">
+        <div class="compare-strip-row"><span class="name">MotiveWave</span><span class="stat lose">Windows install</span></div>
+        <div class="compare-strip-row"><span class="name">ATAS</span><span class="stat lose">Windows install</span></div>
+        <div class="compare-strip-row"><span class="name">MultiCharts</span><span class="stat lose">Windows install</span></div>
+        <div class="compare-strip-row us"><span class="name">GoCharting</span><span class="stat win">Any browser</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== DATA FEES ============================== -->
+<section class="tight">
+  <div class="container">
+    <div class="section-head">
+      <h2>Market data — what's included.</h2>
+      <p>Traders always look for this. Here it is, plainly stated, per tier.</p>
+    </div>
+    <div class="data-grid">
+      <div class="data-card">
+        <h4>Free</h4>
+        <ul>
+          <li><span class="pre inc">✓</span><span><strong>Crypto</strong> — real-time included</span></li>
+          <li><span class="pre add">!</span><span>Futures, forex, equities — 15-min delayed</span></li>
+        </ul>
+      </div>
+      <div class="data-card">
+        <h4>Starter</h4>
+        <ul>
+          <li><span class="pre inc">✓</span><span><strong>Crypto</strong> — real-time</span></li>
+          <li><span class="pre inc">✓</span><span><strong>Forex</strong> — real-time</span></li>
+          <li><span class="pre add">!</span><span>Futures via broker connection</span></li>
+        </ul>
+      </div>
+      <div class="data-card">
+        <h4>Pro</h4>
+        <ul>
+          <li><span class="pre inc">✓</span><span><strong>Crypto, Forex, Futures</strong> — real-time</span></li>
+          <li><span class="pre inc">✓</span><span>US equities via broker (free)</span></li>
+          <li><span class="pre add">!</span><span>CME L2 add-on: $11/mo (exchange fee)</span></li>
+        </ul>
+      </div>
+      <div class="data-card">
+        <h4>Lifetime</h4>
+        <ul>
+          <li><span class="pre inc">✓</span><span>Same as Pro — real-time across all assets</span></li>
+          <li><span class="pre inc">✓</span><span>CME L2 add-on at cost, no markup</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="data-foot"><span class="ind"></span>No hidden data fees on platform pricing. Exchange-mandated fees (CME L2) are passed through at cost.</div>
+  </div>
+</section>
+
+<!-- ============================== PROP FIRM ============================== -->
+<section class="tight">
+  <div class="container">
+    <div class="prop-callout">
+      <div>
+        <div class="eyebrow">Prop firm traders</div>
+        <h3>Trading a funded account?</h3>
+        <p>GoCharting plays nicely with TopStep, Apex, FTMO, and most prop firm rithmic/CQG feeds. Orderflow tools, real-time risk monitoring, and multi-session replay let you review every trade against the firm's drawdown rules — without bouncing between three apps.</p>
+      </div>
+      <div>
+        <a href="#" class="btn btn-primary btn-lg">Set up your prop firm workspace <svg width="14" height="14"><use href="#i-arrow"/></svg></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== TESTIMONIALS ============================== -->
+<section class="tight">
+  <div class="container">
+    <div class="section-head">
+      <h2>Built for traders. By traders.</h2>
+    </div>
+    <div class="testi-grid">
+
+      <div class="testi">
+        <div class="quote-mark">"</div>
+        <blockquote>I switched from Sierra Chart for the footprint clusters. Three months in, I haven't missed a single feature — and I can finally trade from my MacBook at the cafe.</blockquote>
+        <div class="attr">
+          <span class="who">Marcus T.</span>
+          <span class="role">ES futures scalper · 8 yrs experience</span>
+        </div>
+      </div>
+
+      <div class="testi">
+        <div class="quote-mark">"</div>
+        <blockquote>The DOM rendering is clean and the imbalance highlighting actually catches what matters. Replay mode is what closed it for me — I run my whole post-session review in the browser now.</blockquote>
+        <div class="attr">
+          <span class="who">Priya R.</span>
+          <span class="role">NQ orderflow trader · Mumbai</span>
+        </div>
+      </div>
+
+      <div class="testi">
+        <div class="quote-mark">"</div>
+        <blockquote>Prop firm rules are tight on platform choice. GoCharting hooked into our Rithmic feed in under five minutes and the volume profile saved me on a fakeout last week.</blockquote>
+        <div class="attr">
+          <span class="who">Daniel O.</span>
+          <span class="role">TopStep funded trader · Chicago</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============================== VIDEO ============================== -->
+<section class="tight">
+  <div class="container" style="max-width: 1080px;">
+    <div class="section-head">
+      <h2>See the platform in 90 seconds.</h2>
+      <p>Footprint charts, DOM, and live execution — the whole loop, no marketing fluff.</p>
+    </div>
+    <div class="video-frame" role="button" tabindex="0" aria-label="Play product video" style="display:flex; align-items:center; justify-content:center;">
+      <div class="play-button"><svg width="32" height="32"><use href="#i-play"/></svg></div>
+      <div class="video-meta">
+        <span class="cap">See GoCharting's orderflow tools in action — footprint charts, DOM, and live execution in under 90 seconds.</span>
+        <span class="duration">01:24</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== FAQ ============================== -->
+<section class="tight">
+  <div class="container" style="max-width: 880px;">
+    <div class="section-head">
+      <h2>Frequently asked.</h2>
+    </div>
+    <div class="faq-list" id="faq-list">
+      <!-- populated by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- ============================== FINAL CTA ============================== -->
+<section class="final-cta">
+  <h2>Stop installing platforms.<br/><span class="accent">Start charting.</span></h2>
+  <p>Free forever. Upgrade when you're ready. Cancel any time.</p>
+  <a href="#" class="btn btn-primary btn-lg">Start free — no credit card required</a>
+</section>
+
+<!-- ============================== FOOTER ============================== -->
+<footer class="site-footer">
+  <div class="container">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <svg width="22" height="22"><use href="#i-logo"/></svg>
+      <span style="color: var(--text-2);">© GoCharting 2026 · Web-native institutional charting.</span>
+    </div>
+    <div class="footer-links">
+      <a href="#">Status</a>
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="#">Disclosures</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ========== Pricing data ==========
+  // Per-tier monthly equivalent depending on billing period.
+  const PRICES = {
+    starter: { monthly: 29, semi: 26, annual: 24, msrp: 29 },
+    pro:     { monthly: 59, semi: 54, annual: 49, msrp: 59 },
+  };
+  // Yearly $-savings vs monthly billed for a year (12 × monthly − period total).
+  const SAVINGS = {
+    semi:   { starter: 36, pro: 60 },
+    annual: { starter: 60, pro: 120 },
+  };
+
+  function applyBilling(period) {
+    document.querySelectorAll('.billing-toggle button').forEach(btn => {
+      const on = btn.dataset.billing === period;
+      btn.classList.toggle('active', on);
+      btn.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+
+    // Update prices
+    ['starter','pro'].forEach(tier => {
+      const el = document.querySelector(`[data-price="${tier}"]`);
+      if (el) el.textContent = PRICES[tier][period];
+
+      const saveEl = document.querySelector(`[data-savings="${tier}"]`);
+      if (!saveEl) return;
+      if (period === 'monthly') {
+        saveEl.innerHTML = `<span style="color:var(--text-3)">Billed monthly</span>`;
+      } else {
+        const lbl = period === 'annual' ? 'Save $' + SAVINGS.annual[tier] + '/yr'
+                                        : 'Save $' + SAVINGS.semi[tier] + '/yr';
+        saveEl.innerHTML = `<span class="strike">$${PRICES[tier].msrp}</span><span class="save">${lbl}</span>`;
+      }
+    });
+
+    // Update period suffix
+    document.querySelectorAll('[data-period]').forEach(el => {
+      el.textContent = period === 'monthly' ? '/mo' : '/mo, billed ' + (period === 'semi' ? '6mo' : 'yearly');
+    });
+
+    // Update helper
+    const helper = document.getElementById('billing-helper');
+    if (period === 'monthly') {
+      helper.textContent = 'Billed monthly · Cancel any time';
+    } else if (period === 'semi') {
+      helper.textContent = 'Billed every 6 months — save up to $60/year';
+    } else {
+      helper.textContent = 'Billed annually — save up to $120/year vs monthly';
+    }
+  }
+
+  document.querySelectorAll('.billing-toggle button').forEach(btn => {
+    btn.addEventListener('click', () => applyBilling(btn.dataset.billing));
+  });
+  applyBilling('annual');
+
+  // ========== Comparison table ==========
+  const ROWS = [
+    { group: 'Charting & orderflow' },
+    { name: 'Standard candlestick & line charts',                   v: ['✓','✓','✓','✓'] },
+    { name: 'Footprint / cluster charts',                            v: ['—','✓','✓','✓'] },
+    { name: 'DOM (Depth of Market)',                                 v: ['—','✓','✓','✓'] },
+    { name: 'Volume profile (session, visible, fixed-range)',        v: ['—','✓','✓','✓'] },
+    { name: 'Market profile (TPO)',                                  v: ['—','—','✓','✓'] },
+    { name: 'Delta / CVD analysis',                                  v: ['—','—','✓','✓'] },
+    { name: 'Renko, Kagi, Heikin Ashi, Tick charts',                 v: ['—','—','✓','✓'] },
+    { name: '130+ built-in indicators',                              v: ['15','130+','130+','130+'] },
+    { name: 'VWAP, SuperTrend, CPR Pivots',                          v: ['VWAP','✓','✓','✓'] },
+    { name: 'Drawing tools (50+)',                                   v: ['Basic','✓','✓','✓'] },
+    { name: 'Replay mode + multi-session',                           v: ['—','—','✓','✓'] },
+
+    { group: 'Trading & execution' },
+    { name: 'Live broker integration',                               v: ['—','✓','✓','✓'] },
+    { name: 'Broker connections',                                    v: ['—','1','Unlimited','Unlimited'] },
+    { name: 'Chart-based execution (1-click)',                       v: ['—','✓','✓','✓'] },
+    { name: 'Bracket orders (OCO, OTO)',                             v: ['—','—','✓','✓'] },
+    { name: 'Price & volume alerts',                                 v: ['5','100','Unlimited','Unlimited'] },
+    { name: 'Risk monitor (per-trade & per-session)',                v: ['—','—','✓','✓'] },
+
+    { group: 'Platform & access' },
+    { name: 'Multi-asset (stocks, futures, forex, crypto)',          v: ['✓','✓','✓','✓'] },
+    { name: 'Web-based · no install required',                       v: ['✓','✓','✓','✓'] },
+    { name: 'Mac, Linux, Chromebook support',                        v: ['✓','✓','✓','✓'] },
+    { name: 'Saved layouts',                                         v: ['3','25','Unlimited','Unlimited'] },
+    { name: 'Cloud sync across devices',                             v: ['✓','✓','✓','✓'] },
+    { name: 'API & webhook access',                                  v: ['—','—','✓','✓'] },
+
+    { group: 'Support' },
+    { name: 'Email support',                                         v: ['Community','✓','✓','✓'] },
+    { name: 'Priority chat support',                                 v: ['—','—','✓','✓'] },
+    { name: 'Onboarding session',                                    v: ['—','—','—','✓'] },
+    { name: 'Founder Discord access',                                v: ['—','—','—','✓'] },
+  ];
+
+  function cellHTML(val) {
+    if (val === '✓') return '<span class="check">✓</span>';
+    if (val === '—') return '<span class="dash">—</span>';
+    if (/^[0-9]+$/.test(val) || /Unlimited|130\+|\+/.test(val)) return '<span class="num-cell">' + val + '</span>';
+    return val;
+  }
+
+  const cbody = document.getElementById('compare-body');
+  ROWS.forEach(r => {
+    if (r.group) {
+      const tr = document.createElement('tr');
+      tr.className = 'group';
+      tr.innerHTML = '<td colspan="5">' + r.group + '</td>';
+      cbody.appendChild(tr);
+      return;
+    }
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td>' + r.name + '</td>'
+      + '<td>' + cellHTML(r.v[0]) + '</td>'
+      + '<td>' + cellHTML(r.v[1]) + '</td>'
+      + '<td class="featured">' + cellHTML(r.v[2]) + '</td>'
+      + '<td>' + cellHTML(r.v[3]) + '</td>';
+    cbody.appendChild(tr);
+  });
+
+  // ========== FAQ ==========
+  const FAQ = [
+    { q: "What's included in the free plan?",
+      a: "Standard candlestick and line charts, 15 of our 130+ indicators, basic drawing tools, three saved layouts, and 15-minute delayed market data for futures, forex, and equities. Crypto is real-time on every plan, including free. There are no time limits — the free plan is free forever, no credit card required, just an email." },
+    { q: "Is there a contract or can I cancel anytime?",
+      a: "No contracts. Cancel any time directly from your account dashboard. If you cancel a paid plan mid-cycle, you keep access until the end of the period — we don't pro-rate refunds, but we don't lock you in either. Lifetime is a one-time payment with no recurring billing at all." },
+    { q: "What brokers does GoCharting support for live trading?",
+      a: "Direct connections to Interactive Brokers, Tradovate, Rithmic, CQG, AMP, Tradestation, and the major crypto exchanges (Binance, Coinbase, Bybit, Kraken). Starter includes one connection; Pro and Lifetime include unlimited. We add new brokers based on user demand — see the live status page for what's connecting cleanly today." },
+    { q: "Does GoCharting work on Mac and Linux?",
+      a: "Yes — that's the whole point. GoCharting runs in any modern browser (Chrome, Safari, Firefox, Edge) on macOS, Linux, ChromeOS, Windows, and even tablet browsers. No installer, no Windows VM, no Wine. We test against the latest two versions of each browser." },
+    { q: "What is a footprint chart and does GoCharting have one?",
+      a: "A footprint chart shows the bid/ask volume traded at each price level inside every bar — it's how serious orderflow traders read short-term aggression and absorption. Yes, GoCharting has native footprint and cluster charts (Bid×Ask, Delta, Volume, Imbalance modes) on Starter and above. They're built in, not a third-party add-on." },
+    { q: "What market data is included? Are there data fees?",
+      a: "Crypto and forex real-time are included on Starter and above. Futures real-time comes through your broker connection on Pro and Lifetime. The only optional add-on is CME Level 2 depth, which is an exchange fee passed through at cost (~$11/mo) — we don't mark it up. US equities real-time is free via your broker. Free plan gets 15-minute delayed data for everything except crypto." },
+    { q: "How is GoCharting different from TradingView?",
+      a: "TradingView is excellent for indicator-based and chart-pattern trading. GoCharting is built for orderflow — footprint, DOM, volume profile, market profile, delta/CVD are first-class features, not premium add-ons or community scripts. We also do unlimited broker connections on Pro, and the entire platform feels denser and more keyboard-driven, which serious day traders tend to prefer." },
+    { q: "Can I use GoCharting for prop firm trading?",
+      a: "Yes. We work cleanly with TopStep, Apex, FTMO, and most firms running on Rithmic, CQG, or Tradovate feeds. The risk monitor (Pro+) is purpose-built for funded accounts — set per-day, per-trade, and per-session limits that mirror the firm's drawdown rules. See the prop firm workspace setup for a working starter config." },
+    { q: "What happens to my charts and settings if I downgrade?",
+      a: "Nothing is deleted. Layouts, drawings, alerts, and broker connections beyond the lower tier's limits are preserved but become read-only — you can still see them, you just can't modify or add new ones until you upgrade or remove some. If you re-upgrade later, everything reactivates exactly as it was." },
+    { q: "Is there a student or annual discount?",
+      a: "Annual billing already saves up to $120/year vs monthly. We don't run a separate student discount, but the free plan covers what most students need to learn the platform. For prop firms or trading rooms onboarding 10+ traders at once, drop us a line for team pricing — that's an actual discount, not a credit-card-required trial." },
+  ];
+
+  const faqList = document.getElementById('faq-list');
+  FAQ.forEach((f, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'faq-item';
+    wrap.innerHTML = `
+      <button class="faq-q" type="button" aria-expanded="false">
+        <span>${f.q}</span>
+        <svg width="18" height="18" class="chev"><use href="#i-chev"/></svg>
+      </button>
+      <div class="faq-a"><div class="faq-a-inner">${f.a}</div></div>
+    `;
+    faqList.appendChild(wrap);
+    const btn = wrap.querySelector('.faq-q');
+    const a = wrap.querySelector('.faq-a');
+    btn.addEventListener('click', () => {
+      const open = wrap.classList.toggle('open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      a.style.maxHeight = open ? a.scrollHeight + 'px' : '0px';
+    });
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Features — GoCharting</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap"/>
+<style media="print">
+  /* ── PDF EXPORT ── full-color, portrait, continuous flow with smart breaks */
+  @page {
+    size: A4 portrait;
+    margin: 14mm 12mm;
+  }
+  html, body {
+    background: #0B0716 !important;
+    -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+  }
+  /* hide the live ticker and sticky header — both are screen-only chrome */
+  .site-header, .ticker { display: none !important; }
+  /* unstick + tighten spacing globally */
+  section { padding: 28px 0 !important; break-inside: avoid; }
+  .hero { padding: 28px 0 24px !important; break-after: page; }
+  .hero h1 { font-size: 38px !important; line-height: 1.0 !important; }
+  .hero p.sub { font-size: 14px !important; }
+  .hero-stats { margin-top: 24px !important; }
+  .section-head { margin-bottom: 24px !important; }
+  .section-head h2 { font-size: 26px !important; }
+  /* page breaks before key sections so we don't tear cards */
+  #orderflow, .ind-stat, .lt-grid, .compare-band, .final-cta { break-before: page; }
+  /* keep cards intact */
+  .of-card, .ct, .ind-cat, .asset, .vs-col, .compact-band, .lt-grid, .web-band, .compare-band, .ind-stat { break-inside: avoid; }
+  /* hide CTA buttons that won't function in print */
+  .btn { border: 1px solid #3D2D5E !important; }
+  /* deactivate all motion / interactions */
+  * { animation: none !important; transition: none !important; }
+  .hero-eyebrow .dot, .hero-note .live::before { animation: none !important; }
+  /* ensure mocks render at print scale */
+  .shot-body { height: 180px !important; }
+  .lt-shot .shot-body { height: 240px !important; }
+  /* footer */
+  .site-footer { break-before: avoid; padding: 16px 0 !important; }
+  /* container side padding tightened */
+  .container { padding: 0 8px !important; }
+  /* link underline styling reset */
+  a { text-decoration: none !important; color: inherit !important; }
+</style>
+<style>
+  :root {
+    --bg-page:    #0B0716;
+    --bg-alt:     #110B1F;
+    --bg-card:    #181029;
+    --bg-raised:  #1F1535;
+    --bg-hover:   #271A40;
+    --bg-ink:     #280858;
+    --border:     #2A1F44;
+    --border-strong: #3D2D5E;
+    --border-subtle: #1E1632;
+    --text:       #ECE6F5;
+    --text-2:     #9A8FB3;
+    --text-3:     #685A82;
+    --accent:     #763DFD;
+    --accent-hov: #8B5BFF;
+    --accent-act: #5C28D9;
+    --accent-soft: rgba(118,61,253,0.14);
+    --accent-glow: rgba(118,61,253,0.45);
+    --bull:       #26A69A;
+    --bull-strong:#00C853;
+    --bear:       #EF5350;
+    --bear-strong:#FF1744;
+    --warn:       #FFB300;
+    --info:       #29B6F6;
+    --font-sans:  'Inter', -apple-system, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
+    --font-mono:  'JetBrains Mono', 'SF Mono', Consolas, monospace;
+    --ease:       cubic-bezier(0.2,0,0,1);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: var(--font-sans);
+    background: var(--bg-page);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  a { color: var(--accent); text-decoration: none; transition: color 120ms var(--ease); }
+  a:hover { color: var(--accent-hov); }
+  button { font-family: inherit; }
+  .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  .eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-2); }
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+
+  /* ─── header ─────────────────────────────────────────────────────── */
+  .site-header {
+    position: sticky; top: 0; z-index: 50;
+    height: 64px;
+    background: rgba(11,7,22,0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+  }
+  .site-header .container { height: 100%; display: flex; align-items: center; justify-content: space-between; }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand-text { font-weight: 700; font-size: 17px; letter-spacing: -0.02em; color: var(--text); }
+  .nav { display: flex; gap: 24px; }
+  .nav a { color: var(--text-2); font-size: 13px; font-weight: 500; padding: 6px 0; }
+  .nav a:hover { color: var(--text); }
+  .nav a.active { color: var(--text); }
+  .header-actions { display: flex; align-items: center; gap: 12px; }
+  @media (max-width: 720px) { .nav { display: none; } }
+
+  /* ─── buttons ────────────────────────────────────────────────────── */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    height: 40px; padding: 0 18px;
+    font-size: 13px; font-weight: 600; letter-spacing: -0.005em;
+    border-radius: 3px; border: 1px solid transparent;
+    cursor: pointer; white-space: nowrap;
+    transition: background 120ms var(--ease), border-color 120ms var(--ease), color 120ms var(--ease);
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-hov); }
+  .btn-primary:active { background: var(--accent-act); }
+  .btn-secondary { background: transparent; color: var(--text); border-color: var(--border-strong); }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-ghost { background: transparent; color: var(--text-2); }
+  .btn-ghost:hover { color: var(--text); }
+  .btn-sm { height: 32px; padding: 0 12px; font-size: 12px; }
+  .btn-lg { height: 46px; padding: 0 22px; font-size: 14px; }
+  .btn-block { width: 100%; }
+
+  /* ─── hero ───────────────────────────────────────────────────────── */
+  .hero {
+    position: relative;
+    padding: 80px 0 64px;
+    background:
+      radial-gradient(ellipse 800px 400px at 80% 0%, rgba(118,61,253,0.22), transparent 60%),
+      radial-gradient(ellipse 600px 300px at 0% 100%, rgba(40,8,88,0.6), transparent 60%),
+      linear-gradient(180deg, #0B0716 0%, #110B1F 100%);
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero::before {
+    content: ''; position: absolute; inset: 0;
+    background-image:
+      linear-gradient(to right, rgba(61,45,94,0.4) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(61,45,94,0.4) 1px, transparent 1px);
+    background-size: 40px 40px;
+    -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 80%);
+            mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 80%);
+    pointer-events: none;
+    opacity: 0.7;
+  }
+  .hero .container { position: relative; z-index: 1; text-align: center; max-width: 880px; }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 5px 12px; border-radius: 999px;
+    background: var(--accent-soft); border: 1px solid var(--border-strong);
+    font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent);
+    margin-bottom: 24px;
+  }
+  .hero-eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); animation: pulse 1.6s ease-in-out infinite; }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 8px var(--accent); opacity: 1; }
+    50%      { box-shadow: 0 0 16px var(--accent), 0 0 24px var(--accent-glow); opacity: 0.85; }
+  }
+  .hero h1 {
+    margin: 0 0 22px;
+    font-size: clamp(44px, 7vw, 84px);
+    font-weight: 700;
+    line-height: 0.98;
+    letter-spacing: -0.035em;
+    color: var(--text);
+  }
+  .hero h1 .accent {
+    background: linear-gradient(135deg, #B894FF 0%, #763DFD 50%, #5C28D9 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 24px rgba(118,61,253,0.45));
+  }
+  .hero h1 .strike { position: relative; display: inline-block; color: var(--text-3); }
+  .hero h1 .strike::after {
+    content: ''; position: absolute; left: -2%; right: -2%; top: 52%;
+    height: 4px; background: var(--bear-strong);
+    transform: rotate(-2deg);
+    box-shadow: 0 0 12px rgba(255,23,68,0.5);
+  }
+  .hero p.sub {
+    margin: 0 auto 28px;
+    max-width: 680px;
+    font-size: 18px;
+    line-height: 1.5;
+    color: var(--text-2);
+  }
+  .hero p.sub .kw { color: var(--text); font-weight: 600; }
+  .hero-ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .hero-note { margin-top: 16px; font-size: 12px; color: var(--text-3); display: inline-flex; align-items: center; gap: 14px; flex-wrap: wrap; justify-content: center; }
+  .hero-note .sep { color: var(--border-strong); }
+  .hero-note .live { display: inline-flex; align-items: center; gap: 6px; color: var(--bull-strong); font-family: var(--font-mono); font-weight: 600; letter-spacing: 0.04em; }
+  .hero-note .live::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--bull-strong);
+    box-shadow: 0 0 6px var(--bull-strong); animation: pulse 1.4s ease-in-out infinite;
+  }
+
+  /* ─── ticker tape ──────────────────────────────────────────────── */
+  .ticker {
+    position: relative; z-index: 1;
+    width: 100%; overflow: hidden;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: rgba(7,5,15,0.6);
+    backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+    margin-bottom: 36px;
+    -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+            mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  }
+  .ticker-track {
+    display: flex; gap: 36px; padding: 10px 0;
+    width: max-content;
+    animation: scroll 60s linear infinite;
+  }
+  @keyframes scroll {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .ticker-item {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.02em; white-space: nowrap;
+    color: var(--text-2);
+  }
+  .ticker-item .sym { color: var(--text); font-weight: 600; }
+  .ticker-item .px  { color: var(--text); font-variant-numeric: tabular-nums; }
+  .ticker-item .ch  { font-variant-numeric: tabular-nums; font-weight: 600; }
+  .ticker-item .ch.up { color: var(--bull-strong); }
+  .ticker-item .ch.dn { color: var(--bear-strong); }
+
+  /* ─── stat strip ───────────────────────────────────────────────── */
+  .hero-stats {
+    margin-top: 40px;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: rgba(11,7,22,0.5);
+  }
+  @media (max-width: 720px) { .hero-stats { grid-template-columns: repeat(2, 1fr); } }
+  .hero-stat {
+    padding: 18px 16px;
+    text-align: left;
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .hero-stat:last-child { border-right: none; }
+  @media (max-width: 720px) {
+    .hero-stat:nth-child(2) { border-right: none; }
+    .hero-stat:nth-child(1), .hero-stat:nth-child(2) { border-bottom: 1px solid var(--border); }
+  }
+  .hero-stat .v {
+    font-family: var(--font-mono); font-size: 26px; font-weight: 700;
+    color: var(--text); letter-spacing: -0.015em; line-height: 1;
+  }
+  .hero-stat .v .accent { color: var(--accent); }
+  .hero-stat .l {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3);
+  }
+
+  /* ─── section base ───────────────────────────────────────────────── */
+  section { padding: 88px 0; }
+  section.tight { padding: 56px 0; }
+  .section-head { text-align: center; margin-bottom: 48px; }
+  .section-head h2 {
+    margin: 0 0 12px;
+    font-size: clamp(28px, 3.8vw, 40px); font-weight: 700;
+    line-height: 1.15; letter-spacing: -0.025em; color: var(--text);
+  }
+  .section-head p { margin: 0 auto; max-width: 680px; color: var(--text-2); font-size: 16px; }
+  .section-head .eyebrow { display: block; margin-bottom: 14px; color: var(--accent); }
+
+  /* ─── 2. WEB-NATIVE BAND ─────────────────────────────────────────── */
+  .web-band {
+    background:
+      radial-gradient(ellipse 600px 280px at 80% 50%, rgba(118,61,253,0.18), transparent 60%),
+      linear-gradient(135deg, var(--bg-ink) 0%, var(--bg-card) 100%);
+    border-top: 1px solid var(--border-strong);
+    border-bottom: 1px solid var(--border-strong);
+    padding: 64px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .web-band::before {
+    content: ''; position: absolute; inset: 0;
+    background-image:
+      linear-gradient(to right, rgba(118,61,253,0.10) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(118,61,253,0.10) 1px, transparent 1px);
+    background-size: 32px 32px;
+    pointer-events: none;
+  }
+  .web-band .container { position: relative; z-index: 1; }
+  .web-band .eyebrow { color: var(--accent); margin-bottom: 18px; }
+  .web-band h2 {
+    margin: 0 0 28px;
+    font-size: clamp(26px, 3.4vw, 36px); font-weight: 700;
+    line-height: 1.15; letter-spacing: -0.02em; color: var(--text);
+    max-width: 760px;
+  }
+  .web-band h2 .accent { color: var(--accent); }
+  .web-points { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 36px; }
+  @media (max-width: 880px) { .web-points { grid-template-columns: 1fr; gap: 16px; } }
+  .web-point {
+    padding: 20px 22px 22px;
+    border-left: 2px solid var(--accent);
+    background: rgba(11,7,22,0.4);
+  }
+  .web-point .num-tag {
+    font-family: var(--font-mono); font-size: 11px; font-weight: 600;
+    color: var(--accent); letter-spacing: 0.06em; margin-bottom: 8px;
+  }
+  .web-point .head { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 6px; line-height: 1.3; }
+  .web-point .body { font-size: 13px; color: var(--text-2); line-height: 1.5; }
+  .device-row {
+    display: flex; gap: 28px; align-items: center; padding-top: 20px;
+    border-top: 1px solid var(--border);
+    color: var(--text-3);
+    flex-wrap: wrap;
+  }
+  .device-row .dlabel { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); }
+  .device-row .devices { display: flex; gap: 24px; align-items: center; }
+  .device-row .devices > div { display: flex; gap: 8px; align-items: center; color: var(--text-2); font-size: 12px; font-weight: 500; }
+  .device-row svg { color: var(--accent); }
+
+  /* ─── 3. ORDERFLOW TOOLS ─────────────────────────────────────────── */
+  .of-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  @media (max-width: 880px) { .of-grid { grid-template-columns: 1fr; } }
+  .of-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 28px;
+    display: flex; flex-direction: column; gap: 18px;
+    transition: border-color 200ms var(--ease);
+  }
+  .of-card:hover { border-color: var(--border-strong); }
+  .of-card .of-head { display: flex; flex-direction: column; gap: 8px; }
+  .of-card .of-tool {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--accent);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .of-card .of-tool::before {
+    content: ''; width: 22px; height: 1px; background: var(--accent);
+  }
+  .of-card h3 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.015em; color: var(--text); line-height: 1.2; }
+  .of-card .of-def { font-size: 13px; color: var(--text-3); font-style: italic; line-height: 1.5; padding-left: 12px; border-left: 2px solid var(--border-strong); }
+  .of-card p.of-body { margin: 0; color: var(--text-2); font-size: 14px; line-height: 1.6; }
+  .of-card .shot { margin-top: auto; }
+  .of-close {
+    margin-top: 36px; padding: 18px 24px;
+    text-align: center;
+    background: var(--accent-soft);
+    border: 1px solid var(--accent);
+    border-radius: 4px;
+    color: var(--accent);
+    font-size: 14px; font-weight: 600; letter-spacing: -0.005em;
+  }
+  .of-close .sep { color: var(--border-strong); margin: 0 12px; }
+
+  /* ─── shared "screenshot" frame ──────────────────────────────────── */
+  .shot {
+    background: linear-gradient(180deg, #07050F 0%, #0B0716 100%);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+  }
+  .shot-chrome {
+    height: 26px; background: #07050F; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; padding: 0 10px; gap: 8px;
+  }
+  .shot-chrome .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bg-raised); }
+  .shot-chrome .dot:nth-child(1) { background: #4d2c2c; }
+  .shot-chrome .dot:nth-child(2) { background: #4d442c; }
+  .shot-chrome .dot:nth-child(3) { background: #2c4d34; }
+  .shot-chrome .label {
+    margin-left: 12px; font-family: var(--font-mono); font-size: 10px; color: var(--text-3); letter-spacing: 0.04em;
+  }
+  .shot-cap {
+    position: absolute; bottom: 8px; left: 10px;
+    font-family: var(--font-mono); font-size: 10px; color: var(--text-3); letter-spacing: 0.04em;
+    background: rgba(7,5,15,0.7); padding: 2px 6px; border-radius: 2px;
+  }
+  .shot-body { position: relative; height: 200px; }
+
+  /* ── footprint mock ── */
+  .fp { display: flex; height: 100%; padding: 8px 12px; gap: 4px; align-items: stretch; }
+  .fp-bar { flex: 1; display: flex; flex-direction: column; gap: 2px; justify-content: center; min-width: 0; }
+  .fp-cell { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; height: 14px; }
+  .fp-cell .b, .fp-cell .a { font-family: var(--font-mono); font-size: 8px; line-height: 14px; text-align: center; padding: 0 2px; font-variant-numeric: tabular-nums; font-weight: 600; }
+  .fp-cell .b { color: #B8E5DF; background: rgba(38,166,154,0.18); }
+  .fp-cell .a { color: #F8C2C0; background: rgba(239,83,80,0.18); }
+  .fp-cell.hot .b { background: rgba(38,166,154,0.55); color: #fff; }
+  .fp-cell.hot .a { background: rgba(239,83,80,0.55); color: #fff; }
+  .fp-cell.imb .a { box-shadow: inset 0 0 0 1px var(--bear-strong); }
+  .fp-cell.imb .b { box-shadow: inset 0 0 0 1px var(--bull-strong); }
+  .fp-axis {
+    width: 36px; display: flex; flex-direction: column; gap: 2px; justify-content: center;
+    font-family: var(--font-mono); font-size: 8px; color: var(--text-3); text-align: right; padding-right: 4px;
+  }
+  .fp-axis div { height: 14px; line-height: 14px; }
+
+  /* ── DOM mock ── */
+  .dom { display: grid; grid-template-columns: 56px 1fr 56px 1fr 56px; height: 100%; font-family: var(--font-mono); font-size: 10px; }
+  .dom .col-h {
+    grid-column: 1 / -1; height: 22px; display: grid; grid-template-columns: subgrid;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--text-3); font-size: 9px; letter-spacing: 0.06em; text-transform: uppercase;
+  }
+  .dom .col-h > div { padding: 5px 8px; border-right: 1px solid var(--border-subtle); }
+  .dom .col-h > div:last-child { border-right: none; }
+  .dom .row { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; height: 18px; align-items: center; border-bottom: 1px solid rgba(30,22,50,0.5); }
+  .dom .row > div { padding: 0 8px; text-align: right; font-variant-numeric: tabular-nums; position: relative; height: 18px; line-height: 18px; }
+  .dom .row .price { color: var(--text); font-weight: 600; text-align: center; background: var(--bg-alt); }
+  .dom .row.bid .bid-vol { color: var(--bull); }
+  .dom .row.bid .bid-vol::before {
+    content: ''; position: absolute; right: 0; top: 0; bottom: 0;
+    background: rgba(38,166,154,0.20); width: var(--w, 30%); z-index: 0;
+  }
+  .dom .row.ask .ask-vol { color: var(--bear); }
+  .dom .row.ask .ask-vol::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    background: rgba(239,83,80,0.20); width: var(--w, 30%); z-index: 0;
+  }
+  .dom .row > div > span { position: relative; z-index: 1; }
+  .dom .row.last .price { background: var(--accent); color: #fff; }
+  .dom .row.spread .price { color: var(--text-3); background: var(--bg-page); font-size: 9px; }
+  .dom .row .qsize { color: var(--text-2); }
+
+  /* ── volume profile mock ── */
+  .vp { position: relative; height: 100%; padding: 12px; }
+  .vp svg { display: block; width: 100%; height: 100%; }
+  .vp .vp-poc-label {
+    position: absolute; right: 12px; top: 12px;
+    font-family: var(--font-mono); font-size: 9px; color: var(--accent); letter-spacing: 0.06em;
+  }
+
+  /* ── delta mock ── */
+  .delta { position: relative; height: 100%; padding: 12px; }
+  .delta svg { display: block; width: 100%; height: 100%; }
+  .delta .legend {
+    position: absolute; left: 12px; top: 12px;
+    display: flex; gap: 14px; font-family: var(--font-mono); font-size: 9px; color: var(--text-3);
+  }
+  .delta .legend span::before {
+    content: ''; display: inline-block; width: 10px; height: 2px; margin-right: 5px; vertical-align: middle;
+  }
+  .delta .legend .cvd::before { background: var(--accent); }
+  .delta .legend .delta::before { background: var(--bull); }
+
+  /* ─── 4. CHART TYPES ─────────────────────────────────────────────── */
+  .ct-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+  @media (max-width: 1080px) { .ct-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 600px)  { .ct-grid { grid-template-columns: repeat(2, 1fr); } }
+  .ct {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 4px;
+    padding: 14px;
+    display: flex; flex-direction: column; gap: 10px;
+    position: relative;
+    transition: border-color 120ms var(--ease), background 120ms var(--ease);
+  }
+  .ct:hover { border-color: var(--accent); }
+  .ct .ct-thumb {
+    height: 56px; background: #07050F; border: 1px solid var(--border-subtle); border-radius: 2px;
+    overflow: hidden;
+  }
+  .ct .ct-name {
+    font-size: 13px; font-weight: 600; color: var(--text); letter-spacing: -0.005em;
+    display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  }
+  .ct .ct-desc { font-size: 11px; color: var(--text-2); line-height: 1.4; }
+  .ct .of-pill {
+    font-size: 8.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    background: var(--accent-soft); color: var(--accent);
+    padding: 2px 6px; border-radius: 2px;
+    border: 1px solid var(--accent);
+  }
+
+  /* ─── 5. INDICATORS ──────────────────────────────────────────────── */
+  .ind-stat {
+    display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap;
+    padding: 28px 32px; margin-bottom: 28px;
+    background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 6px;
+  }
+  .ind-stat .big {
+    font-family: var(--font-mono); font-size: 64px; font-weight: 700;
+    color: var(--accent); line-height: 0.95; letter-spacing: -0.02em;
+    flex-shrink: 0;
+  }
+  .ind-stat .big small { font-size: 32px; color: var(--text); }
+  .ind-stat .copy { flex: 1; min-width: 280px; }
+  .ind-stat h3 { margin: 0 0 10px; font-size: 18px; font-weight: 600; color: var(--text); letter-spacing: -0.005em; }
+  .ind-stat p { margin: 0 0 14px; color: var(--text-2); font-size: 14px; line-height: 1.55; }
+  .ind-named {
+    display: flex; flex-wrap: wrap; gap: 6px;
+  }
+  .ind-named .tag {
+    font-family: var(--font-mono); font-size: 11px; font-weight: 500;
+    color: var(--text); padding: 4px 10px;
+    background: var(--bg-alt); border: 1px solid var(--border);
+    border-radius: 2px;
+  }
+  .ind-named .tag.lead { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+
+  .ind-cat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  @media (max-width: 880px) { .ind-cat-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 480px) { .ind-cat-grid { grid-template-columns: 1fr; } }
+  .ind-cat {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 4px;
+    padding: 20px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .ind-cat .cat-pill {
+    align-self: flex-start;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 5px 12px; border-radius: 999px;
+    background: var(--accent-soft); color: var(--accent);
+    border: 1px solid var(--accent);
+  }
+  .ind-cat ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+  .ind-cat li {
+    font-family: var(--font-mono); font-size: 12px; color: var(--text);
+    padding: 4px 0; border-bottom: 1px solid var(--border-subtle);
+  }
+  .ind-cat li:last-child { border-bottom: none; }
+
+  /* ─── 6. LIVE TRADING ────────────────────────────────────────────── */
+  .lt-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 32px; align-items: stretch; }
+  @media (max-width: 880px) { .lt-grid { grid-template-columns: 1fr; } }
+  .lt-copy { display: flex; flex-direction: column; gap: 18px; }
+  .lt-copy h3 { margin: 0; font-size: 26px; font-weight: 700; color: var(--text); letter-spacing: -0.02em; line-height: 1.2; }
+  .lt-copy p { margin: 0; color: var(--text-2); font-size: 14px; line-height: 1.65; }
+  .lt-bullets { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+  .lt-bullets li {
+    display: flex; gap: 12px; align-items: flex-start;
+    font-size: 14px; color: var(--text); line-height: 1.45;
+  }
+  .lt-bullets li svg {
+    flex-shrink: 0; width: 16px; height: 16px; margin-top: 2px;
+    color: var(--bull);
+  }
+  .lt-shot { display: flex; }
+  .lt-shot .shot { width: 100%; }
+  .lt-shot .shot-body { height: 280px; }
+
+  .broker-row {
+    margin-top: 36px;
+    padding: 24px 28px;
+    background: var(--bg-alt); border: 1px solid var(--border); border-radius: 4px;
+  }
+  .broker-row .label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-2); margin-bottom: 14px; }
+  .broker-tiles { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+  @media (max-width: 880px) { .broker-tiles { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 480px) { .broker-tiles { grid-template-columns: repeat(2, 1fr); } }
+  .broker-tile {
+    height: 52px;
+    background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 3px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-3);
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.04em;
+  }
+  .broker-foot { margin-top: 14px; font-size: 12px; color: var(--text-3); }
+  .broker-foot a { color: var(--accent); }
+
+  /* ─── ladder mock for live trading ──────────────────────────────── */
+  .ladder-mock { display: flex; height: 100%; }
+  .ladder-mock .chart-side { flex: 1.4; padding: 12px; border-right: 1px solid var(--border-subtle); position: relative; }
+  .ladder-mock .ladder-side { width: 150px; padding: 8px 0; font-family: var(--font-mono); font-size: 10px; }
+  .ladder-mock .ladder-side .lrow {
+    display: grid; grid-template-columns: 1fr 50px 1fr; height: 18px; align-items: center;
+    border-bottom: 1px solid rgba(30,22,50,0.4);
+    font-variant-numeric: tabular-nums;
+  }
+  .ladder-mock .ladder-side .lrow > div { padding: 0 6px; }
+  .ladder-mock .ladder-side .price { text-align: center; color: var(--text); font-weight: 600; background: var(--bg-alt); }
+  .ladder-mock .ladder-side .bid { color: var(--bull); text-align: right; position: relative; }
+  .ladder-mock .ladder-side .bid::before { content: ''; position: absolute; right: 0; top: 1px; bottom: 1px; background: rgba(38,166,154,0.20); width: var(--w, 25%); }
+  .ladder-mock .ladder-side .ask { color: var(--bear); position: relative; }
+  .ladder-mock .ladder-side .ask::before { content: ''; position: absolute; left: 0; top: 1px; bottom: 1px; background: rgba(239,83,80,0.20); width: var(--w, 25%); }
+  .ladder-mock .ladder-side .lrow > div > span { position: relative; }
+  .ladder-mock .ladder-side .lrow.my-bid .price { background: var(--accent-soft); color: var(--accent); border: 1px solid var(--accent); }
+  .ladder-mock .ladder-side .lrow.last .price { background: var(--accent); color: #fff; }
+  .order-tag {
+    position: absolute; right: 8px; padding: 3px 8px; border-radius: 2px;
+    font-family: var(--font-mono); font-size: 9px; font-weight: 600; letter-spacing: 0.04em;
+  }
+  .order-tag.buy  { background: rgba(38,166,154,0.18); color: var(--bull); border: 1px solid var(--bull); }
+  .order-tag.stop { background: rgba(239,83,80,0.16); color: var(--bear); border: 1px solid var(--bear); }
+  .order-tag.tp   { background: rgba(118,61,253,0.16); color: var(--accent); border: 1px solid var(--accent); }
+  .pnl-pill {
+    position: absolute; left: 12px; top: 12px;
+    padding: 4px 10px; border-radius: 2px;
+    font-family: var(--font-mono); font-size: 11px; font-weight: 600;
+    background: rgba(38,166,154,0.14); color: var(--bull); border: 1px solid var(--bull);
+  }
+
+  /* ─── 7. MULTI-ASSET ─────────────────────────────────────────────── */
+  .asset-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  @media (max-width: 880px) { .asset-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 480px) { .asset-grid { grid-template-columns: 1fr; } }
+  .asset {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px;
+    padding: 24px;
+    display: flex; flex-direction: column; gap: 14px;
+    transition: border-color 200ms var(--ease);
+  }
+  .asset:hover { border-color: var(--accent); }
+  .asset .ahead { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .asset .aname { font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: -0.015em; }
+  .asset .acode { font-family: var(--font-mono); font-size: 11px; color: var(--accent); letter-spacing: 0.06em; }
+  .asset .adesc { color: var(--text-2); font-size: 13px; line-height: 1.55; }
+  .asset .asym {
+    margin-top: auto; padding-top: 12px; border-top: 1px solid var(--border-subtle);
+    display: flex; flex-wrap: wrap; gap: 6px;
+  }
+  .asset .asym .s {
+    font-family: var(--font-mono); font-size: 10px; color: var(--text-3);
+    padding: 2px 6px; border: 1px solid var(--border-subtle); border-radius: 2px;
+  }
+  .asset-foot {
+    margin-top: 28px; text-align: center;
+    color: var(--text-2); font-size: 14px; line-height: 1.55;
+    max-width: 720px; margin-left: auto; margin-right: auto;
+  }
+  .asset-foot strong { color: var(--accent); font-weight: 600; }
+
+  /* ─── 8. DRAWING TOOLS / 9. ALERTS — compact bands ──────────────── */
+  .compact-band {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px;
+    padding: 32px;
+    display: grid; grid-template-columns: 320px 1fr; gap: 32px; align-items: center;
+  }
+  @media (max-width: 880px) { .compact-band { grid-template-columns: 1fr; gap: 20px; padding: 24px; } }
+  .compact-band h3 { margin: 0 0 8px; font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: -0.015em; line-height: 1.2; }
+  .compact-band .lead { font-size: 13px; color: var(--text-2); line-height: 1.55; margin: 0; }
+  .compact-band .toolwrap { display: flex; flex-wrap: wrap; gap: 8px; }
+  .compact-band .toolwrap .t {
+    font-size: 12px; color: var(--text);
+    padding: 7px 12px;
+    background: var(--bg-alt); border: 1px solid var(--border);
+    border-radius: 3px;
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: border-color 120ms var(--ease), color 120ms var(--ease);
+  }
+  .compact-band .toolwrap .t:hover { border-color: var(--accent); color: var(--accent); }
+  .compact-band .toolwrap .t svg { width: 12px; height: 12px; color: var(--accent); }
+
+  /* ─── 10. COMPARISON BAND ────────────────────────────────────────── */
+  .compare-band {
+    background:
+      radial-gradient(ellipse 600px 220px at 0% 0%, rgba(118,61,253,0.18), transparent 60%),
+      var(--bg-alt);
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    padding: 56px 48px;
+  }
+  @media (max-width: 880px) { .compare-band { padding: 36px 24px; } }
+  .compare-band .head { text-align: center; max-width: 720px; margin: 0 auto 36px; }
+  .compare-band .head h2 { margin: 0 0 10px; font-size: clamp(22px, 3vw, 32px); font-weight: 700; line-height: 1.2; letter-spacing: -0.02em; color: var(--text); }
+  .compare-band .head p { color: var(--text-2); font-size: 14px; margin: 0; }
+  .vs-grid { display: grid; grid-template-columns: 1fr 60px 1fr; gap: 20px; align-items: stretch; }
+  @media (max-width: 720px) { .vs-grid { grid-template-columns: 1fr; gap: 12px; } .vs-divider { display: none; } }
+  .vs-col {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px;
+    padding: 28px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .vs-col.us { border-color: var(--accent); background: linear-gradient(180deg, rgba(118,61,253,0.06), var(--bg-card) 60%); }
+  .vs-col h4 {
+    margin: 0; font-size: 14px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--text-2);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .vs-col.us h4 { color: var(--accent); }
+  .vs-col h4 .badge {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
+    padding: 3px 8px; border-radius: 2px;
+    background: var(--accent); color: #fff;
+  }
+  .vs-col.them h4 .badge { background: var(--bg-raised); color: var(--text-3); }
+  .vs-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+  .vs-list li {
+    display: flex; gap: 12px; align-items: flex-start;
+    font-size: 14px; line-height: 1.45;
+  }
+  .vs-list li svg { flex-shrink: 0; width: 16px; height: 16px; margin-top: 2px; }
+  .vs-list.us li { color: var(--text); }
+  .vs-list.us li svg { color: var(--bull); }
+  .vs-list.them li { color: var(--text-2); }
+  .vs-list.them li svg { color: var(--bear); }
+  .vs-list.them li.muted { color: var(--text-3); }
+  .vs-divider {
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono); font-weight: 700; font-size: 14px;
+    color: var(--text-3); letter-spacing: 0.1em;
+  }
+  .vs-foot {
+    margin-top: 28px; padding: 16px 20px;
+    background: rgba(11,7,22,0.5); border: 1px solid var(--border); border-radius: 4px;
+    font-size: 12px; color: var(--text-3); line-height: 1.5;
+  }
+
+  /* ─── 11. FINAL CTA ──────────────────────────────────────────────── */
+  .final-cta {
+    background:
+      radial-gradient(ellipse 700px 320px at 50% 0%, rgba(118,61,253,0.28), transparent 60%),
+      linear-gradient(180deg, var(--bg-page) 0%, var(--bg-ink) 100%);
+    border-top: 1px solid var(--border-strong);
+    padding: 96px 0;
+    text-align: center;
+  }
+  .final-cta h2 { margin: 0 0 16px; font-size: clamp(28px, 4vw, 44px); font-weight: 700; line-height: 1.1; letter-spacing: -0.025em; color: var(--text); }
+  .final-cta p { margin: 0 0 28px; color: var(--text-2); font-size: 16px; }
+  .final-cta .upsell { font-size: 13px; color: var(--text-3); margin-top: 16px; margin-bottom: 0; }
+
+  /* ─── footer ─────────────────────────────────────────────────────── */
+  .site-footer {
+    background: var(--bg-page);
+    border-top: 1px solid var(--border);
+    padding: 32px 0;
+    color: var(--text-2);
+    font-size: 12px;
+  }
+  .site-footer .container { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+  .footer-links { display: flex; gap: 20px; }
+  .footer-links a { color: var(--text-2); }
+  .footer-links a:hover { color: var(--text); }
+</style>
+</head>
+<body>
+
+<!-- Logo + icons -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-logo" viewBox="0 0 64 64">
+    <circle cx="32" cy="32" r="32" fill="#763DFD"/>
+    <path d="M18 40 L26 32 L31 36 L42 22" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <path d="M36 22 L42 22 L42 28" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  </symbol>
+  <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="5 12 10 17 19 7"/>
+  </symbol>
+  <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/>
+  </symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="5" y1="12" x2="19" y2="12"/>
+    <polyline points="13 6 19 12 13 18"/>
+  </symbol>
+  <symbol id="i-desktop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="2" y="4" width="20" height="13" rx="1.5"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+  </symbol>
+  <symbol id="i-laptop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="5" width="18" height="11" rx="1.5"/><path d="M2 19h20"/>
+  </symbol>
+  <symbol id="i-tablet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="5" y="3" width="14" height="18" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/>
+  </symbol>
+  <symbol id="i-trend" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="4" y1="20" x2="20" y2="4"/>
+  </symbol>
+  <symbol id="i-hline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="3" y1="12" x2="21" y2="12"/>
+  </symbol>
+  <symbol id="i-fib" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="3" y1="5" x2="21" y2="5"/><line x1="3" y1="11" x2="21" y2="11"/><line x1="3" y1="17" x2="21" y2="17"/>
+  </symbol>
+  <symbol id="i-pitch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="3" y1="20" x2="21" y2="6"/><line x1="6" y1="20" x2="21" y2="9"/><line x1="9" y1="20" x2="21" y2="12"/>
+  </symbol>
+  <symbol id="i-rect" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="4" y="6" width="16" height="12"/>
+  </symbol>
+  <symbol id="i-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="6" y1="6" x2="18" y2="6"/><line x1="12" y1="6" x2="12" y2="18"/>
+  </symbol>
+  <symbol id="i-arrow-d" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="5" y1="12" x2="19" y2="12"/><polyline points="14 7 19 12 14 17"/>
+  </symbol>
+  <symbol id="i-channel" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="3" y1="18" x2="21" y2="6"/><line x1="3" y1="14" x2="21" y2="2"/>
+  </symbol>
+  <symbol id="i-vwap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3 18 L9 8 L13 14 L21 5"/>
+  </symbol>
+</svg>
+
+<!-- ============================== HEADER ============================== -->
+<header class="site-header">
+  <div class="container">
+    <a href="#" class="brand">
+      <svg width="28" height="28"><use href="#i-logo"/></svg>
+      <span class="brand-text">GoCharting</span>
+    </a>
+    <nav class="nav">
+      <a href="#" class="active">Features</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="#">Brokers</a>
+      <a href="#">Sign in</a>
+    </nav>
+    <div class="header-actions">
+      <a href="#" class="btn btn-primary btn-sm">Start free</a>
+    </div>
+  </div>
+</header>
+
+<!-- ============================== 1 · HERO ============================== -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-eyebrow"><span class="dot"></span>Built for the tape</div>
+    <h1>Every orderflow tool a pro trader needs.</h1>
+    <p class="sub"><span class="kw">Footprint. DOM. Profile. Delta. Live execution.</span> One web-native chart — futures, crypto, equities, FX. No install.</p>
+    <div class="hero-ctas">
+      <a href="#" class="btn btn-primary btn-lg">Start free</a>
+      <a href="pricing.html" class="btn btn-secondary btn-lg">See pricing <svg width="14" height="14"><use href="#i-arrow"/></svg></a>
+    </div>
+    <div class="hero-note">
+      <span class="live">Markets live</span>
+      <span class="sep">·</span>
+      <span>No credit card</span>
+      <span class="sep">·</span>
+      <span>Free forever</span>
+    </div>
+  </div>
+
+  <!-- live ticker tape -->
+  <div class="ticker container" style="max-width: 100%; padding: 0; margin-top: 48px;">
+    <div class="ticker">
+      <div class="ticker-track" id="ticker-track"></div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="v">130<span class="accent">+</span></div><div class="l">Indicators built-in</div></div>
+      <div class="hero-stat"><div class="v">10</div><div class="l">Chart types</div></div>
+      <div class="hero-stat"><div class="v">4</div><div class="l">Asset classes</div></div>
+      <div class="hero-stat"><div class="v">0<span class="accent">ms</span></div><div class="l">Install time</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== 2 · OPEN-IN-BROWSER CTA BAND ============================== -->
+<section class="web-band">
+  <div class="container" style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 18px;">
+    <h2 style="max-width: none; margin: 0;">Open it in your browser. <span class="accent">No install.</span></h2>
+    <p style="margin: 0; color: var(--text-2); font-size: 15px; max-width: 580px; line-height: 1.5;">No download, no IT setup, no Windows requirement. Sign in and the platform is there.</p>
+    <a href="#" class="btn btn-primary btn-lg" style="margin-top: 6px;">Launch GoCharting <svg width="14" height="14"><use href="#i-arrow"/></svg></a>
+    <div class="device-row" style="justify-content: center; border-top: none; padding-top: 4px;">
+      <div class="devices">
+        <div><svg width="18" height="18"><use href="#i-desktop"/></svg> Mac</div>
+        <div><svg width="18" height="18"><use href="#i-laptop"/></svg> Linux</div>
+        <div><svg width="18" height="18"><use href="#i-laptop"/></svg> Windows</div>
+        <div><svg width="18" height="18"><use href="#i-laptop"/></svg> Chromebook</div>
+        <div><svg width="18" height="18"><use href="#i-tablet"/></svg> iPad</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== 3 · ORDERFLOW TOOLS ============================== -->
+<section id="orderflow">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Orderflow toolset</span>
+      <h2>Professional orderflow tools.</h2>
+      <p>Footprint, DOM, profile, and delta — first-class, on the same chart.</p>
+    </div>
+
+    <div class="of-grid">
+
+      <!-- Footprint -->
+      <article class="of-card">
+        <div class="of-head">
+          <div class="of-tool">Tool 01 — Footprint</div>
+          <h3>Footprint &amp; Cluster Charts</h3>
+        </div>
+        <div class="of-def">A chart that shows the volume traded at each price level inside every candle, broken down by buys and sells.</div>
+        <p class="of-body">Read aggression and absorption candle-by-candle, not just the close. Bid×Ask, Delta, Volume, and Imbalance modes — across stocks, futures, forex, and crypto. Color heat scales with traded size; imbalances flag automatically inside each candle.</p>
+        <div class="shot">
+          <div class="shot-chrome"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="label">ESZ5 · 5min · Footprint Bid×Ask</span></div>
+          <div class="shot-body fp" id="fp-mock"></div>
+          <div class="shot-cap">Screenshot · Footprint Chart</div>
+        </div>
+      </article>
+
+      <!-- DOM -->
+      <article class="of-card">
+        <div class="of-head">
+          <div class="of-tool">Tool 02 — DOM</div>
+          <h3>Depth of Market</h3>
+        </div>
+        <div class="of-def">A live order book showing pending buy and sell orders queued at each price level.</div>
+        <p class="of-body">A real, real-time DOM ladder. For scalpers, futures day traders, and anyone reading absorption at the inside, the book is non-negotiable. Click a row to send an order; modify or cancel from the same row.</p>
+        <div class="shot">
+          <div class="shot-chrome"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="label">NQZ5 · DOM Ladder · Live</span></div>
+          <div class="shot-body dom" id="dom-mock"></div>
+          <div class="shot-cap">Screenshot · DOM Ladder</div>
+        </div>
+      </article>
+
+      <!-- Volume Profile + TPO -->
+      <article class="of-card">
+        <div class="of-head">
+          <div class="of-tool">Tool 03 — Profile</div>
+          <h3>Volume Profile + Market Profile (TPO)</h3>
+        </div>
+        <div class="of-def">A horizontal histogram of volume traded at each price level — and TPO, the time-based auction structure of the same session.</div>
+        <p class="of-body">Volume profile for raw transacted volume; Market Profile (TPO) for the auction structure of the day. Anchor either to a session, a visible range, or a custom period. Point of Control, value area, and single prints are rendered out of the box.</p>
+        <div class="shot">
+          <div class="shot-chrome"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="label">CL · Daily · Volume Profile (Visible Range)</span></div>
+          <div class="shot-body vp" id="vp-mock">
+            <div class="vp-poc-label">POC · 78.42</div>
+          </div>
+          <div class="shot-cap">Screenshot · Volume Profile</div>
+        </div>
+      </article>
+
+      <!-- Delta / CVD -->
+      <article class="of-card">
+        <div class="of-head">
+          <div class="of-tool">Tool 04 — Delta</div>
+          <h3>Delta &amp; CVD Analysis</h3>
+        </div>
+        <div class="of-def">Delta — aggressive buying minus aggressive selling per bar. CVD — that delta accumulated across time.</div>
+        <p class="of-body">Delta tells you where buyers or sellers are leaning into the tape. CVD tells you whether that pressure is building or exhausting. Both panes share a price axis with the chart above, with no plugin or workaround.</p>
+        <div class="shot">
+          <div class="shot-chrome"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="label">BTCUSD · 15min · CVD + Delta</span></div>
+          <div class="shot-body delta" id="delta-mock">
+            <div class="legend"><span class="cvd">CVD</span><span class="delta">Δ Bar</span></div>
+          </div>
+          <div class="shot-cap">Screenshot · Delta / CVD</div>
+        </div>
+      </article>
+
+    </div>
+
+    <div class="of-close">
+      All four tools<span class="sep">·</span>Web-native<span class="sep">·</span>No install
+    </div>
+  </div>
+</section>
+
+<!-- ============================== 4 · CHART TYPES ============================== -->
+<section style="background: var(--bg-alt); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Chart engine</span>
+      <h2>Every chart type a trader needs.</h2>
+      <p>Time-based, tick-based, range-based, and the four orderflow chart types most platforms make you bolt on with a plugin.</p>
+    </div>
+
+    <div class="ct-grid" id="ct-grid">
+      <!-- injected -->
+    </div>
+  </div>
+</section>
+
+<!-- ============================== 5 · INDICATORS ============================== -->
+<section>
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Indicators &amp; studies</span>
+      <h2>130+ built-in indicators.</h2>
+      <p>The named ones professionals search for, plus the long tail. No Pine Script required to find what you're looking for.</p>
+    </div>
+
+    <div class="ind-stat">
+      <div class="big">130<small>+</small></div>
+      <div class="copy">
+        <h3>The names traders search for, built in.</h3>
+        <p>Professionals don't shop for "an indicator" — they look for VWAP, or SuperTrend, or CPR Pivots specifically. They're all here, alongside the standards.</p>
+        <div class="ind-named">
+          <span class="tag lead">VWAP</span>
+          <span class="tag lead">Anchored VWAP</span>
+          <span class="tag lead">SuperTrend</span>
+          <span class="tag lead">CPR Pivots</span>
+          <span class="tag">SMA</span>
+          <span class="tag">EMA</span>
+          <span class="tag">WMA</span>
+          <span class="tag">RSI</span>
+          <span class="tag">MACD</span>
+          <span class="tag">Bollinger Bands</span>
+          <span class="tag">ATR</span>
+          <span class="tag">Stochastic</span>
+          <span class="tag">Ichimoku</span>
+          <span class="tag">Pivot Points</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="ind-cat-grid">
+      <div class="ind-cat">
+        <div class="cat-pill">Orderflow</div>
+        <ul>
+          <li>Cumulative Delta</li>
+          <li>Volume Delta</li>
+          <li>Volume Profile</li>
+          <li>VWAP / Anchored VWAP</li>
+        </ul>
+      </div>
+      <div class="ind-cat">
+        <div class="cat-pill">Trend</div>
+        <ul>
+          <li>SuperTrend</li>
+          <li>Moving Averages</li>
+          <li>Ichimoku Cloud</li>
+          <li>Parabolic SAR</li>
+        </ul>
+      </div>
+      <div class="ind-cat">
+        <div class="cat-pill">Momentum</div>
+        <ul>
+          <li>RSI</li>
+          <li>MACD</li>
+          <li>Stochastic</li>
+          <li>CCI</li>
+        </ul>
+      </div>
+      <div class="ind-cat">
+        <div class="cat-pill">Volatility</div>
+        <ul>
+          <li>Bollinger Bands</li>
+          <li>ATR</li>
+          <li>Keltner Channels</li>
+          <li>Donchian Channels</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== 6 · LIVE TRADING ============================== -->
+<section style="background: var(--bg-alt); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Execution</span>
+      <h2>Trade live from the chart.</h2>
+      <p>Read the order flow, click the level, send the order — same surface. No alt-tabbing to a broker terminal.</p>
+    </div>
+
+    <div class="lt-grid">
+      <div class="lt-copy">
+        <h3>Analysis and execution share a chart.</h3>
+        <p>GoCharting connects to your broker and lets you place, modify, and cancel orders directly from the chart and DOM. Working orders, fills, and stops render live on the price axis; positions show real-time P&amp;L. One surface for reading the tape and trading it.</p>
+
+        <ul class="lt-bullets">
+          <li><svg><use href="#i-check"/></svg><span>Place, modify, and cancel orders directly from the chart</span></li>
+          <li><svg><use href="#i-check"/></svg><span>DOM ladder trading — click a price to execute at that level</span></li>
+          <li><svg><use href="#i-check"/></svg><span>Bracket orders and stop management from the chart</span></li>
+          <li><svg><use href="#i-check"/></svg><span>Real-time P&amp;L visible on the chart, per position</span></li>
+        </ul>
+      </div>
+
+      <div class="lt-shot">
+        <div class="shot">
+          <div class="shot-chrome"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="label">ESZ5 · Chart + Ladder · 1 contract long</span></div>
+          <div class="shot-body ladder-mock" id="ladder-mock">
+            <div class="chart-side">
+              <div class="pnl-pill">P&amp;L · +$87.50</div>
+              <svg viewBox="0 0 280 230" preserveAspectRatio="none" width="100%" height="100%">
+                <!-- subtle grid -->
+                <g stroke="#1E1632" stroke-width="0.5">
+                  <line x1="0" y1="50" x2="280" y2="50"/>
+                  <line x1="0" y1="100" x2="280" y2="100"/>
+                  <line x1="0" y1="150" x2="280" y2="150"/>
+                  <line x1="0" y1="200" x2="280" y2="200"/>
+                </g>
+                <!-- candles -->
+                <g font-family="monospace">
+                  <!-- bull/bear bars -->
+                  <line x1="20" y1="80" x2="20" y2="160" stroke="#26A69A"/>
+                  <rect x="16" y="100" width="8" height="40" fill="#26A69A"/>
+                  <line x1="40" y1="70" x2="40" y2="155" stroke="#26A69A"/>
+                  <rect x="36" y="90" width="8" height="40" fill="#26A69A"/>
+                  <line x1="60" y1="65" x2="60" y2="140" stroke="#EF5350"/>
+                  <rect x="56" y="80" width="8" height="40" fill="#EF5350"/>
+                  <line x1="80" y1="55" x2="80" y2="130" stroke="#26A69A"/>
+                  <rect x="76" y="65" width="8" height="55" fill="#26A69A"/>
+                  <line x1="100" y1="70" x2="100" y2="125" stroke="#EF5350"/>
+                  <rect x="96" y="78" width="8" height="32" fill="#EF5350"/>
+                  <line x1="120" y1="60" x2="120" y2="115" stroke="#26A69A"/>
+                  <rect x="116" y="68" width="8" height="38" fill="#26A69A"/>
+                  <line x1="140" y1="55" x2="140" y2="105" stroke="#26A69A"/>
+                  <rect x="136" y="60" width="8" height="38" fill="#26A69A"/>
+                  <line x1="160" y1="50" x2="160" y2="95" stroke="#EF5350"/>
+                  <rect x="156" y="55" width="8" height="32" fill="#EF5350"/>
+                  <line x1="180" y1="42" x2="180" y2="90" stroke="#26A69A"/>
+                  <rect x="176" y="48" width="8" height="36" fill="#26A69A"/>
+                  <line x1="200" y1="38" x2="200" y2="80" stroke="#26A69A"/>
+                  <rect x="196" y="44" width="8" height="30" fill="#26A69A"/>
+                  <line x1="220" y1="40" x2="220" y2="78" stroke="#EF5350"/>
+                  <rect x="216" y="46" width="8" height="22" fill="#EF5350"/>
+                  <line x1="240" y1="32" x2="240" y2="72" stroke="#26A69A"/>
+                  <rect x="236" y="38" width="8" height="28" fill="#26A69A"/>
+                  <line x1="260" y1="28" x2="260" y2="68" stroke="#26A69A"/>
+                  <rect x="256" y="34" width="8" height="28" fill="#26A69A"/>
+                </g>
+                <!-- entry / stop / TP lines -->
+                <g stroke-dasharray="2 3" stroke-width="0.8">
+                  <line x1="0" y1="125" x2="280" y2="125" stroke="#26A69A"/>
+                  <line x1="0" y1="170" x2="280" y2="170" stroke="#EF5350"/>
+                  <line x1="0" y1="55"  x2="280" y2="55"  stroke="#763DFD"/>
+                </g>
+                <text x="6" y="122" font-family="JetBrains Mono" font-size="9" fill="#26A69A">BUY  4521.50</text>
+                <text x="6" y="167" font-family="JetBrains Mono" font-size="9" fill="#EF5350">STP  4517.00</text>
+                <text x="6" y="52"  font-family="JetBrains Mono" font-size="9" fill="#763DFD">TP   4528.75</text>
+              </svg>
+            </div>
+            <div class="ladder-side">
+              <div class="lrow">       <div class="bid"><span></span></div><div class="price">28.75</div><div class="ask" style="--w:60%"><span>12</span></div></div>
+              <div class="lrow">       <div class="bid"><span></span></div><div class="price">28.50</div><div class="ask" style="--w:35%"><span>7</span></div></div>
+              <div class="lrow">       <div class="bid"><span></span></div><div class="price">28.25</div><div class="ask" style="--w:80%"><span>16</span></div></div>
+              <div class="lrow">       <div class="bid"><span></span></div><div class="price">28.00</div><div class="ask" style="--w:45%"><span>9</span></div></div>
+              <div class="lrow last"><div class="bid" style="--w:55%"><span>11</span></div><div class="price">27.75</div><div class="ask"><span></span></div></div>
+              <div class="lrow"><div class="bid" style="--w:90%"><span>18</span></div><div class="price">27.50</div><div class="ask"><span></span></div></div>
+              <div class="lrow my-bid"><div class="bid" style="--w:30%"><span>5</span></div><div class="price">21.50</div><div class="ask"><span></span></div></div>
+              <div class="lrow"><div class="bid" style="--w:50%"><span>10</span></div><div class="price">17.00</div><div class="ask"><span></span></div></div>
+            </div>
+          </div>
+          <div class="shot-cap">Screenshot · Live Trading</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="broker-row">
+      <div class="label">Supported brokers</div>
+      <div class="broker-tiles">
+        <div class="broker-tile">[ Broker 1 ]</div>
+        <div class="broker-tile">[ Broker 2 ]</div>
+        <div class="broker-tile">[ Broker 3 ]</div>
+        <div class="broker-tile">[ Broker 4 ]</div>
+        <div class="broker-tile">[ Broker 5 ]</div>
+        <div class="broker-tile">[ Broker 6 ]</div>
+      </div>
+      <div class="broker-foot">Full broker list at <a href="#">gocharting.com/brokers</a> — direct connections add as they certify.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== 7 · MULTI-ASSET ============================== -->
+<section>
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Multi-asset</span>
+      <h2>One platform. Every market.</h2>
+      <p>Most desktop orderflow platforms are futures-only or crypto-only. GoCharting covers all four asset classes — in the browser.</p>
+    </div>
+
+    <div class="asset-grid">
+      <div class="asset">
+        <div class="ahead">
+          <div class="aname">Futures</div>
+          <div class="acode">FUT</div>
+        </div>
+        <div class="adesc">Major futures contracts with real-time orderflow tools — footprint, DOM, volume profile, delta — available across the board.</div>
+        <div class="asym">
+          <span class="s">ES</span><span class="s">NQ</span><span class="s">YM</span><span class="s">RTY</span><span class="s">CL</span><span class="s">GC</span><span class="s">ZN</span><span class="s">6E</span>
+        </div>
+      </div>
+
+      <div class="asset">
+        <div class="ahead">
+          <div class="aname">Crypto</div>
+          <div class="acode">SPOT &amp; PERPS</div>
+        </div>
+        <div class="adesc">Major pairs and exchanges with native footprint and delta. Real-time on every plan, including the free tier.</div>
+        <div class="asym">
+          <span class="s">BTC</span><span class="s">ETH</span><span class="s">SOL</span><span class="s">BNB</span><span class="s">XRP</span><span class="s">DOGE</span>
+        </div>
+      </div>
+
+      <div class="asset">
+        <div class="ahead">
+          <div class="aname">Stocks</div>
+          <div class="acode">EQUITY</div>
+        </div>
+        <div class="adesc">US equities with Level 2 depth and orderflow support — same footprint and DOM you use on futures.</div>
+        <div class="asym">
+          <span class="s">SPY</span><span class="s">QQQ</span><span class="s">AAPL</span><span class="s">NVDA</span><span class="s">TSLA</span><span class="s">AMD</span>
+        </div>
+      </div>
+
+      <div class="asset">
+        <div class="ahead">
+          <div class="aname">Forex</div>
+          <div class="acode">FX</div>
+        </div>
+        <div class="adesc">Major and minor pairs across the trading day. Standard charts, indicators, and drawing tools across every pair.</div>
+        <div class="asym">
+          <span class="s">EURUSD</span><span class="s">GBPUSD</span><span class="s">USDJPY</span><span class="s">AUDUSD</span><span class="s">USDCAD</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="asset-foot">Most desktop orderflow platforms are futures or crypto only. <strong>GoCharting covers all four — in the browser.</strong></p>
+  </div>
+</section>
+
+<!-- ============================== 8 · DRAWING TOOLS ============================== -->
+<section class="tight">
+  <div class="container">
+    <div class="compact-band">
+      <div>
+        <h3>Drawing tools built for active traders.</h3>
+        <p class="lead">Everything a chart analyst needs — no plugins, no workarounds.</p>
+      </div>
+      <div class="toolwrap">
+        <span class="t"><svg><use href="#i-trend"/></svg>Trendlines</span>
+        <span class="t"><svg><use href="#i-hline"/></svg>Horizontal Levels</span>
+        <span class="t"><svg><use href="#i-fib"/></svg>Fibonacci Retracement</span>
+        <span class="t"><svg><use href="#i-fib"/></svg>Fibonacci Extension</span>
+        <span class="t"><svg><use href="#i-pitch"/></svg>Pitchfork</span>
+        <span class="t"><svg><use href="#i-vwap"/></svg>VWAP Anchored</span>
+        <span class="t"><svg><use href="#i-rect"/></svg>Rectangle / Box</span>
+        <span class="t"><svg><use href="#i-text"/></svg>Text Labels</span>
+        <span class="t"><svg><use href="#i-arrow-d"/></svg>Arrows</span>
+        <span class="t"><svg><use href="#i-channel"/></svg>Channel Lines</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== 9 · ALERTS ============================== -->
+<section class="tight" style="padding-top: 0;">
+  <div class="container">
+    <div class="compact-band">
+      <div>
+        <h3>Alerts that actually matter.</h3>
+        <p class="lead">Set them on what you actually trade against — price, indicator, or a level you drew.</p>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+          <div style="background: var(--bg-alt); border: 1px solid var(--border); border-radius: 4px; padding: 14px;">
+            <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px;">Price</div>
+            <div style="font-size: 12px; color: var(--text-2); line-height: 1.5;">Trigger when price crosses a level — above, below, or both.</div>
+          </div>
+          <div style="background: var(--bg-alt); border: 1px solid var(--border); border-radius: 4px; padding: 14px;">
+            <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px;">Indicator</div>
+            <div style="font-size: 12px; color: var(--text-2); line-height: 1.5;">Trigger on indicator crosses — RSI thresholds, MA crossovers, MACD signals.</div>
+          </div>
+          <div style="background: var(--bg-alt); border: 1px solid var(--border); border-radius: 4px; padding: 14px;">
+            <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px;">Drawing</div>
+            <div style="font-size: 12px; color: var(--text-2); line-height: 1.5;">Trigger on any line, level, or shape you drew — moves with your drawing.</div>
+          </div>
+        </div>
+        <div style="font-size: 12px; color: var(--text-3); line-height: 1.5;">Set alerts on price, indicators, or drawn levels — get notified wherever you are.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== 10 · COMPARISON BAND ============================== -->
+<section>
+  <div class="container">
+    <div class="compare-band">
+      <div class="head">
+        <h2>Built for traders who outgrew the basics.<br/><span style="color: var(--accent);">No Windows required.</span></h2>
+        <p>What you get with GoCharting — versus what a desktop orderflow install asks of you.</p>
+      </div>
+
+      <div class="vs-grid">
+        <div class="vs-col us">
+          <h4>GoCharting <span class="badge">Web-native</span></h4>
+          <ul class="vs-list us">
+            <li><svg><use href="#i-check"/></svg><span>Runs in any modern browser — Mac, Linux, Chromebook, iPad</span></li>
+            <li><svg><use href="#i-check"/></svg><span>Native footprint, DOM, volume profile, market profile, delta</span></li>
+            <li><svg><use href="#i-check"/></svg><span>Multi-asset: futures, crypto, stocks, forex on one platform</span></li>
+            <li><svg><use href="#i-check"/></svg><span>Live broker execution from the chart and DOM</span></li>
+            <li><svg><use href="#i-check"/></svg><span>Cloud-synced layouts across devices, sign-in only</span></li>
+            <li><svg><use href="#i-check"/></svg><span>Open and trading inside 60 seconds of signup</span></li>
+          </ul>
+        </div>
+
+        <div class="vs-divider">VS</div>
+
+        <div class="vs-col them">
+          <h4>A desktop orderflow install <span class="badge">Typical</span></h4>
+          <ul class="vs-list them">
+            <li><svg><use href="#i-x"/></svg><span>Windows-only — Mac and Linux require a VM or dual-boot</span></li>
+            <li><svg><use href="#i-x"/></svg><span>Download and install required, with version-specific updates</span></li>
+            <li><svg><use href="#i-x"/></svg><span>No browser access — desk machine only</span></li>
+            <li><svg><use href="#i-x"/></svg><span>Settings and layouts tied to a single install</span></li>
+            <li><svg><use href="#i-x"/></svg><span>Often futures-only or crypto-only — not full multi-asset</span></li>
+            <li><svg><use href="#i-x"/></svg><span>Onboarding is a setup project, not a sign-in</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== 11 · FINAL CTA ============================== -->
+<section class="final-cta">
+  <div class="container">
+    <h2>Start with the free plan.<br/>No credit card. No install.</h2>
+    <p>Open a tab. Sign in with email. Trade.</p>
+    <a href="#" class="btn btn-primary btn-lg">Open GoCharting Free <svg width="14" height="14"><use href="#i-arrow"/></svg></a>
+    <p class="upsell">Upgrade to a paid plan when you're ready.</p>
+  </div>
+</section>
+
+<!-- ============================== FOOTER ============================== -->
+<footer class="site-footer">
+  <div class="container">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <svg width="22" height="22"><use href="#i-logo"/></svg>
+      <span style="color: var(--text-2);">© GoCharting 2026 · Web-native institutional charting.</span>
+    </div>
+    <div class="footer-links">
+      <a href="#">Status</a>
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="#">Disclosures</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  /* ────────── 3. Orderflow mini-mocks ────────── */
+
+  // ── Ticker tape ───────────────────────────────
+  (function buildTicker() {
+    const root = document.getElementById('ticker-track');
+    if (!root) return;
+    const items = [
+      ['ESZ5',  '4521.50', '+0.42%', 'up'],
+      ['NQZ5',  '17855.25','+0.61%', 'up'],
+      ['CL',    '78.42',   '-1.18%', 'dn'],
+      ['GC',    '2384.10', '+0.23%', 'up'],
+      ['BTC',   '67,842',  '+2.14%', 'up'],
+      ['ETH',   '3,528',   '+1.86%', 'up'],
+      ['SOL',   '178.42',  '-0.74%', 'dn'],
+      ['SPY',   '584.21',  '+0.38%', 'up'],
+      ['QQQ',   '498.07',  '+0.52%', 'up'],
+      ['NVDA',  '142.85',  '+1.94%', 'up'],
+      ['TSLA',  '286.40',  '-0.62%', 'dn'],
+      ['AAPL',  '232.18',  '+0.18%', 'up'],
+      ['EURUSD','1.0842',  '+0.12%', 'up'],
+      ['GBPUSD','1.2728',  '-0.08%', 'dn'],
+      ['USDJPY','149.62',  '+0.34%', 'up'],
+      ['DOGE',  '0.1684',  '+3.42%', 'up'],
+    ];
+    const html = items.map(i =>
+      `<span class="ticker-item"><span class="sym">${i[0]}</span><span class="px">${i[1]}</span><span class="ch ${i[3]}">${i[2]}</span></span>`
+    ).join('');
+    // double for seamless loop
+    root.innerHTML = html + html;
+  })();
+
+  // ── Footprint ─────────────────────────────────
+  (function buildFootprint() {
+    const root = document.getElementById('fp-mock');
+    if (!root) return;
+    // 6 bars × 9 price rows
+    const N_BARS = 6, N_ROWS = 9;
+    // ascending-price axis labels (top = highest)
+    const basePrice = 4525.50;
+    const axisFrag = document.createDocumentFragment();
+    const axis = document.createElement('div');
+    axis.className = 'fp-axis';
+    for (let r = 0; r < N_ROWS; r++) {
+      const px = (basePrice - r * 0.25).toFixed(2);
+      const div = document.createElement('div');
+      div.textContent = px;
+      axis.appendChild(div);
+    }
+    root.appendChild(axis);
+
+    // generate 6 bars
+    const seed = [
+      [3, 5, 8,12,18,25,18, 9, 4],   // bar 1 — buying lower, selling rejected
+      [5, 8,11,16,22,30,20,11, 5],
+      [4, 7, 9,15,28,45,32,16, 7],   // hot middle row
+      [6,10,14,22,38,52,28,12, 4],
+      [3, 6,10,18,32,48,30,14, 5],
+      [2, 4, 8,14,26,40,55,28,10],   // climax
+    ];
+    seed.forEach((bar, bi) => {
+      const col = document.createElement('div');
+      col.className = 'fp-bar';
+      bar.forEach((vol, ri) => {
+        // bid/ask split
+        const buyShare = 0.4 + (Math.sin(bi*1.3 + ri*0.7)*0.25);
+        const buy  = Math.round(vol * buyShare);
+        const sell = vol - buy;
+        const cell = document.createElement('div');
+        cell.className = 'fp-cell';
+        if (vol > 35) cell.classList.add('hot');
+        if (Math.abs(buy - sell) > 18) cell.classList.add('imb');
+        cell.innerHTML = `<div class="b">${buy}</div><div class="a">${sell}</div>`;
+        col.appendChild(cell);
+      });
+      root.appendChild(col);
+    });
+  })();
+
+  // ── DOM ladder ────────────────────────────────
+  (function buildDom() {
+    const root = document.getElementById('dom-mock');
+    if (!root) return;
+
+    const head = document.createElement('div');
+    head.className = 'col-h';
+    head.innerHTML = `<div>BSize</div><div>Bid</div><div>Price</div><div>Ask</div><div>ASize</div>`;
+    root.appendChild(head);
+
+    // top-down: 4 ask rows, last-trade, 4 bid rows
+    const lastPx = 17_855.25;
+    const rows = [
+      { side: 'ask', px: 17_856.50, vol: 18, w: 60 },
+      { side: 'ask', px: 17_856.25, vol: 22, w: 75 },
+      { side: 'ask', px: 17_856.00, vol: 14, w: 45 },
+      { side: 'ask', px: 17_855.75, vol:  9, w: 30 },
+      { side: 'spread', px: '17,855.62', label: 'spread 0.13' },
+      { side: 'last', px: lastPx,    vol:  3 },
+      { side: 'bid', px: 17_855.00, vol: 11, w: 38 },
+      { side: 'bid', px: 17_854.75, vol: 25, w: 85 },
+      { side: 'bid', px: 17_854.50, vol: 17, w: 55 },
+      { side: 'bid', px: 17_854.25, vol:  8, w: 28 },
+    ];
+
+    const fmt = n => typeof n === 'number' ? n.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) : n;
+
+    rows.forEach(r => {
+      const tr = document.createElement('div');
+      tr.className = `row ${r.side}`;
+      if (r.side === 'spread') {
+        tr.innerHTML = `<div></div><div></div><div class="price">— ${r.label} —</div><div></div><div></div>`;
+      } else if (r.side === 'last') {
+        tr.innerHTML = `
+          <div></div><div></div>
+          <div class="price">${fmt(r.px)} ▲</div>
+          <div></div>
+          <div class="qsize" style="text-align:left;">last × ${r.vol}</div>`;
+      } else if (r.side === 'bid') {
+        tr.innerHTML = `
+          <div class="qsize">${r.vol}</div>
+          <div class="bid-vol" style="--w:${r.w}%"><span>${r.vol}</span></div>
+          <div class="price">${fmt(r.px)}</div>
+          <div></div><div></div>`;
+      } else {
+        tr.innerHTML = `
+          <div></div><div></div>
+          <div class="price">${fmt(r.px)}</div>
+          <div class="ask-vol" style="--w:${r.w}%"><span>${r.vol}</span></div>
+          <div class="qsize" style="text-align:left;">${r.vol}</div>`;
+      }
+      root.appendChild(tr);
+    });
+  })();
+
+  // ── Volume profile ────────────────────────────
+  (function buildVP() {
+    const root = document.getElementById('vp-mock');
+    if (!root) return;
+    const w = 360, h = 200;
+    // candles + horizontal histogram
+    const NS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+    svg.setAttribute('preserveAspectRatio', 'none');
+    // grid
+    [40, 80, 120, 160].forEach(y => {
+      const ln = document.createElementNS(NS, 'line');
+      ln.setAttribute('x1', 0); ln.setAttribute('y1', y);
+      ln.setAttribute('x2', w); ln.setAttribute('y2', y);
+      ln.setAttribute('stroke', '#1E1632'); ln.setAttribute('stroke-width', 0.5);
+      svg.appendChild(ln);
+    });
+
+    // candles on left ~70% width
+    const candles = [
+      [80, 60,140, 90,'#26A69A'], [105, 70,150,100,'#26A69A'], [130, 80,170,120,'#EF5350'],
+      [155, 70,160,110,'#26A69A'], [180, 65,150,100,'#26A69A'], [205, 50,135, 85,'#EF5350'],
+      [225, 58,148, 90,'#26A69A'], [245, 45,130, 75,'#26A69A'],
+    ];
+    // x, hi, lo, opclose-mid, color  → wick + body
+    candles.forEach(c => {
+      const [x, hi, lo, mid, col] = c;
+      const wick = document.createElementNS(NS, 'line');
+      wick.setAttribute('x1', x); wick.setAttribute('y1', hi);
+      wick.setAttribute('x2', x); wick.setAttribute('y2', lo);
+      wick.setAttribute('stroke', col); wick.setAttribute('stroke-width', 1);
+      svg.appendChild(wick);
+      const body = document.createElementNS(NS, 'rect');
+      body.setAttribute('x', x - 4); body.setAttribute('y', mid - 12);
+      body.setAttribute('width', 8); body.setAttribute('height', 24);
+      body.setAttribute('fill', col);
+      svg.appendChild(body);
+    });
+
+    // horizontal histogram on right side: 14 rows, stacked from top
+    const histX = 268;
+    const histW = w - histX - 8;
+    // value distribution — POC near middle
+    const vols = [6, 10, 14, 22, 32, 48, 64, 78, 70, 56, 38, 22, 14, 8];
+    const max = Math.max(...vols);
+    const rowH = (h - 32) / vols.length;
+    vols.forEach((v, i) => {
+      const y = 16 + i * rowH;
+      const len = (v / max) * histW;
+      const isPOC = (v === max);
+      const inVA = v > 30;
+      const r = document.createElementNS(NS, 'rect');
+      r.setAttribute('x', histX);
+      r.setAttribute('y', y);
+      r.setAttribute('width', len);
+      r.setAttribute('height', rowH - 1);
+      r.setAttribute('fill', isPOC ? '#763DFD' : (inVA ? 'rgba(118,61,253,0.45)' : 'rgba(154,143,179,0.30)'));
+      svg.appendChild(r);
+    });
+
+    // POC line across full width
+    const pocY = 16 + 7 * rowH + (rowH-1)/2;
+    const pocLn = document.createElementNS(NS, 'line');
+    pocLn.setAttribute('x1', 0); pocLn.setAttribute('y1', pocY);
+    pocLn.setAttribute('x2', histX); pocLn.setAttribute('y2', pocY);
+    pocLn.setAttribute('stroke', '#763DFD'); pocLn.setAttribute('stroke-width', 1);
+    pocLn.setAttribute('stroke-dasharray', '3 3');
+    svg.appendChild(pocLn);
+
+    root.insertBefore(svg, root.firstChild);
+  })();
+
+  // ── Delta / CVD ───────────────────────────────
+  (function buildDelta() {
+    const root = document.getElementById('delta-mock');
+    if (!root) return;
+    const w = 360, h = 200;
+    const NS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+    svg.setAttribute('preserveAspectRatio', 'none');
+
+    // mid-line for delta histogram (top half)
+    const midY = 80;
+    const lin = document.createElementNS(NS, 'line');
+    lin.setAttribute('x1', 0); lin.setAttribute('y1', midY);
+    lin.setAttribute('x2', w); lin.setAttribute('y2', midY);
+    lin.setAttribute('stroke', '#2A1F44'); lin.setAttribute('stroke-width', 0.5);
+    svg.appendChild(lin);
+
+    // CVD line spanning full width on lower section
+    const cvdPath = document.createElementNS(NS, 'path');
+    let d = 'M 0 170';
+    const pts = [170,165,158,148,160,140,130,120,128,112,105,118,108, 96, 88, 80];
+    pts.forEach((y, i) => { d += ` L ${(i+1) * (w / pts.length)} ${y}`; });
+    cvdPath.setAttribute('d', d);
+    cvdPath.setAttribute('stroke', '#763DFD');
+    cvdPath.setAttribute('stroke-width', 1.4);
+    cvdPath.setAttribute('fill', 'none');
+    svg.appendChild(cvdPath);
+
+    // CVD fill below path
+    const fillPath = document.createElementNS(NS, 'path');
+    fillPath.setAttribute('d', d + ` L ${w} ${h-10} L 0 ${h-10} Z`);
+    fillPath.setAttribute('fill', 'rgba(118,61,253,0.12)');
+    svg.insertBefore(fillPath, cvdPath);
+
+    // Delta histogram bars (top section)
+    const deltas = [-3, 5, -8, 12, 18, -6, 22, 28, -14, 16, 32, -8, 24, 38, -10, 28];
+    const barW = w / deltas.length - 2;
+    deltas.forEach((dv, i) => {
+      const x = i * (w / deltas.length) + 1;
+      const height = Math.abs(dv) * 1.4;
+      const isPos = dv > 0;
+      const y = isPos ? midY - height : midY;
+      const rect = document.createElementNS(NS, 'rect');
+      rect.setAttribute('x', x);
+      rect.setAttribute('y', y);
+      rect.setAttribute('width', barW);
+      rect.setAttribute('height', height);
+      rect.setAttribute('fill', isPos ? '#26A69A' : '#EF5350');
+      rect.setAttribute('opacity', 0.85);
+      svg.appendChild(rect);
+    });
+
+    // separator
+    const sep = document.createElementNS(NS, 'line');
+    sep.setAttribute('x1', 0); sep.setAttribute('y1', 110);
+    sep.setAttribute('x2', w); sep.setAttribute('y2', 110);
+    sep.setAttribute('stroke', '#2A1F44'); sep.setAttribute('stroke-width', 0.5);
+    svg.appendChild(sep);
+
+    root.insertBefore(svg, root.firstChild);
+  })();
+
+  /* ────────── 4. Chart-types grid ────────── */
+  const CHART_TYPES = [
+    { name: 'Candlestick',     desc: 'Standard OHLC display.',                              kind: 'candle' },
+    { name: 'Heikin Ashi',     desc: 'Smoothed candles for trend clarity.',                  kind: 'ha' },
+    { name: 'Renko',           desc: 'Price-only — filters time and noise.',                 kind: 'renko' },
+    { name: 'Kagi',            desc: 'Directional reversal lines.',                          kind: 'kagi' },
+    { name: 'Tick Charts',     desc: 'Bars based on trade count, not time.',                 kind: 'tick' },
+    { name: 'Range Charts',    desc: 'Bars based on price range, not time.',                 kind: 'range' },
+    { name: 'Footprint',       desc: 'Volume-at-price inside each candle.',                  kind: 'footprint',  of: true },
+    { name: 'Imbalance',       desc: 'Highlights bid/ask imbalance per bar.',                kind: 'imbalance',  of: true },
+    { name: 'TPO / Market Profile', desc: 'Time-based auction structure.',                   kind: 'tpo',        of: true },
+    { name: 'Volume Profile',  desc: 'Horizontal volume histogram.',                         kind: 'vp',         of: true },
+  ];
+
+  function thumbSVG(kind) {
+    const w = 200, h = 56;
+    const wrap = (inner, extra='') =>
+      `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" width="100%" height="100%">${extra}${inner}</svg>`;
+
+    const grid = `<g stroke="#1E1632" stroke-width="0.5"><line x1="0" y1="14" x2="${w}" y2="14"/><line x1="0" y1="28" x2="${w}" y2="28"/><line x1="0" y1="42" x2="${w}" y2="42"/></g>`;
+
+    if (kind === 'candle') {
+      const cs = [
+        [12, 8, 46, 18, 38, '#26A69A'],
+        [28,12, 42, 22, 34, '#EF5350'],
+        [44, 6, 40, 14, 30, '#26A69A'],
+        [60,10, 36, 16, 28, '#26A69A'],
+        [76,14, 38, 22, 32, '#EF5350'],
+        [92, 8, 32, 14, 24, '#26A69A'],
+        [108,4, 28, 10, 22, '#26A69A'],
+        [124,8, 30, 14, 24, '#EF5350'],
+        [140,6, 26, 12, 20, '#26A69A'],
+        [156,2, 22,  8, 16, '#26A69A'],
+        [172,0, 20,  6, 14, '#26A69A'],
+        [188,4, 24, 10, 18, '#EF5350'],
+      ];
+      const lines = cs.map(c => `<line x1="${c[0]}" y1="${c[1]}" x2="${c[0]}" y2="${c[2]}" stroke="${c[5]}" stroke-width="1"/>`).join('');
+      const bodies = cs.map(c => `<rect x="${c[0]-3}" y="${c[3]}" width="6" height="${c[4]-c[3]}" fill="${c[5]}"/>`).join('');
+      return wrap(lines + bodies, grid);
+    }
+    if (kind === 'ha') {
+      const cs = [
+        [12, 28, 44, '#EF5350'], [28, 24, 40, '#EF5350'],
+        [44, 18, 34, '#26A69A'], [60, 14, 30, '#26A69A'],
+        [76, 10, 26, '#26A69A'], [92,  8, 24, '#26A69A'],
+        [108, 6, 22, '#26A69A'], [124, 4, 20, '#26A69A'],
+        [140, 6, 22, '#26A69A'], [156, 8, 24, '#26A69A'],
+        [172, 4, 20, '#26A69A'], [188, 2, 18, '#26A69A'],
+      ];
+      const bodies = cs.map(c => `<rect x="${c[0]-4}" y="${c[1]}" width="8" height="${c[2]-c[1]}" fill="${c[3]}" opacity="0.9"/>`).join('');
+      return wrap(bodies, grid);
+    }
+    if (kind === 'renko') {
+      // alternating up/down bricks
+      const bricks = [];
+      let x = 4, y = 36;
+      const seq = ['u','u','u','d','u','u','u','u','d','d','u','u'];
+      seq.forEach(d => {
+        const fill = d === 'u' ? '#26A69A' : '#EF5350';
+        bricks.push(`<rect x="${x}" y="${y}" width="14" height="12" fill="none" stroke="${fill}" stroke-width="1.2"/>`);
+        x += 16; y += d === 'u' ? -6 : 6;
+        if (y < 0) y = 0; if (y > 44) y = 44;
+      });
+      return wrap(bricks.join(''), grid);
+    }
+    if (kind === 'kagi') {
+      return wrap(`<polyline points="4,40 14,40 14,16 26,16 26,32 38,32 38,8 50,8 50,28 62,28 62,18 74,18 74,38 86,38 86,12 98,12 98,30 110,30 110,6 122,6 122,22 134,22 134,40 146,40 146,14 158,14 158,28 170,28 170,4 182,4" fill="none" stroke="#763DFD" stroke-width="1.4"/>`, grid);
+    }
+    if (kind === 'tick') {
+      // many tight candles
+      const cs = [];
+      for (let i = 0; i < 20; i++) {
+        const x = 8 + i * 9;
+        const top = 12 + Math.sin(i*0.5)*10 + Math.random()*3;
+        const bot = top + 8 + Math.random()*8;
+        const col = i % 3 === 1 ? '#EF5350' : '#26A69A';
+        cs.push(`<line x1="${x}" y1="${top-4}" x2="${x}" y2="${bot+4}" stroke="${col}" stroke-width="0.8"/>`);
+        cs.push(`<rect x="${x-2}" y="${top}" width="4" height="${bot-top}" fill="${col}"/>`);
+      }
+      return wrap(cs.join(''), grid);
+    }
+    if (kind === 'range') {
+      // flat-height candles, varying counts
+      const cs = [];
+      let x = 8;
+      const counts = [3,4,2,5,3,2,4];
+      counts.forEach((cnt, gi) => {
+        for (let i = 0; i < cnt; i++) {
+          const col = (gi % 2 === 0) ? '#26A69A' : '#EF5350';
+          const y  = 14 + gi * 4;
+          cs.push(`<rect x="${x-2}" y="${y}" width="4" height="14" fill="${col}"/>`);
+          cs.push(`<line x1="${x}" y1="${y-3}" x2="${x}" y2="${y+17}" stroke="${col}" stroke-width="0.8"/>`);
+          x += 8;
+        }
+      });
+      return wrap(cs.join(''), grid);
+    }
+    if (kind === 'footprint') {
+      const cells = [];
+      const xs = [10, 50, 90, 130, 170];
+      const ys = [4, 16, 28, 40];
+      xs.forEach((cx, ci) => {
+        ys.forEach((cy, ri) => {
+          const buyHot = (ri === 1 + (ci % 2));
+          cells.push(`<rect x="${cx}"    y="${cy}" width="14" height="10" fill="rgba(38,166,154,${buyHot?0.65:0.25})"/>`);
+          cells.push(`<rect x="${cx+15}" y="${cy}" width="14" height="10" fill="rgba(239,83,80,${buyHot?0.25:0.55})"/>`);
+        });
+      });
+      return wrap(cells.join(''), '');
+    }
+    if (kind === 'imbalance') {
+      const out = [];
+      // candles with imbalance flags
+      const cs = [
+        [16, 8, 44, 16, 36, '#26A69A', 'l'],
+        [40,12, 40, 22, 32, '#EF5350', 'r'],
+        [64, 6, 38, 14, 28, '#26A69A', 'l'],
+        [88,10, 34, 18, 26, '#26A69A', 'r'],
+        [112,4, 28, 10, 22, '#26A69A', 'l'],
+        [136,6, 30, 12, 24, '#EF5350', 'r'],
+        [160,2, 24,  8, 18, '#26A69A', 'l'],
+        [184,0, 20,  6, 14, '#26A69A', 'l'],
+      ];
+      cs.forEach(c => {
+        out.push(`<line x1="${c[0]}" y1="${c[1]}" x2="${c[0]}" y2="${c[2]}" stroke="${c[5]}" stroke-width="1"/>`);
+        out.push(`<rect x="${c[0]-3}" y="${c[3]}" width="6" height="${c[4]-c[3]}" fill="${c[5]}"/>`);
+        // imbalance triangle
+        const tx = c[6] === 'l' ? c[0] - 9 : c[0] + 5;
+        const ty = (c[3] + c[4]) / 2;
+        const col = c[6] === 'l' ? '#26A69A' : '#EF5350';
+        out.push(`<rect x="${tx}" y="${ty-2}" width="4" height="4" fill="${col}"/>`);
+      });
+      return wrap(out.join(''), grid);
+    }
+    if (kind === 'tpo') {
+      // letter columns A-Z stacked sideways
+      const cells = [];
+      const dist = [
+        '   AB',
+        '  ABC',
+        ' ABCD',
+        ' BCDE',
+        'ABCDEF',
+        'BCDEFG',
+        ' CDEFG',
+        ' DEFG',
+        '  EFG',
+        '   FG',
+      ];
+      dist.forEach((row, ri) => {
+        for (let i = 0; i < row.length; i++) {
+          if (row[i] === ' ') continue;
+          cells.push(`<rect x="${10 + i*9}" y="${4 + ri*5}" width="7" height="4" fill="rgba(118,61,253,${0.35 + (ri/dist.length)*0.4})"/>`);
+        }
+      });
+      return wrap(cells.join(''), '');
+    }
+    if (kind === 'vp') {
+      // candles + horizontal histogram on right
+      const out = [];
+      const cs = [
+        [12, 12, 44, 18, 36, '#26A69A'],
+        [26, 16, 40, 24, 32, '#EF5350'],
+        [40, 10, 36, 16, 28, '#26A69A'],
+        [54,  8, 32, 14, 26, '#26A69A'],
+        [68, 12, 30, 18, 24, '#EF5350'],
+        [82,  6, 26, 12, 20, '#26A69A'],
+        [96,  4, 22,  8, 18, '#26A69A'],
+        [110, 8, 24, 12, 18, '#EF5350'],
+        [124, 4, 20,  8, 16, '#26A69A'],
+      ];
+      cs.forEach(c => {
+        out.push(`<line x1="${c[0]}" y1="${c[1]}" x2="${c[0]}" y2="${c[2]}" stroke="${c[5]}" stroke-width="0.8"/>`);
+        out.push(`<rect x="${c[0]-2}" y="${c[3]}" width="4" height="${c[4]-c[3]}" fill="${c[5]}"/>`);
+      });
+      // histogram
+      const hist = [4, 8, 14, 22, 32, 28, 18, 10, 6];
+      const max = Math.max(...hist);
+      hist.forEach((v, i) => {
+        const y = 4 + i * 5;
+        const len = (v / max) * 50;
+        const isPOC = v === max;
+        out.push(`<rect x="148" y="${y}" width="${len}" height="4" fill="${isPOC ? '#763DFD' : 'rgba(118,61,253,0.45)'}"/>`);
+      });
+      return wrap(out.join(''), grid);
+    }
+    return wrap('', grid);
+  }
+
+  const ctRoot = document.getElementById('ct-grid');
+  CHART_TYPES.forEach(c => {
+    const el = document.createElement('article');
+    el.className = 'ct';
+    el.innerHTML = `
+      <div class="ct-thumb">${thumbSVG(c.kind)}</div>
+      <div class="ct-name">
+        ${c.name}
+        ${c.of ? '<span class="of-pill">Orderflow</span>' : ''}
+      </div>
+      <div class="ct-desc">${c.desc}</div>
+    `;
+    ctRoot.appendChild(el);
+  });
+</script>
+
+</body>
+</html>
