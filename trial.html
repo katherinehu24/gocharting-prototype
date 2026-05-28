@@ -701,6 +701,15 @@ a:hover { color: var(--gc-accent-hover); text-decoration: underline; }
   transition: all var(--gc-dur-fast) var(--gc-ease);
 }
 .gc-ack-row:hover { border-color: var(--gc-border); }
+.gc-ack-row.invalid {
+  border-color: var(--gc-bear);
+  background: var(--gc-bear-tint);
+  animation: gcInvalidPulse 800ms var(--gc-ease) 1;
+}
+@keyframes gcInvalidPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 83, 80, 0); }
+  50% { box-shadow: 0 0 0 4px rgba(239, 83, 80, 0.25); }
+}
 .gc-ack-row.checked {
   border-color: var(--gc-teal);
   background: var(--gc-teal-tint);
@@ -2173,9 +2182,32 @@ function StepVerify({ form, setForm, onNext, onBack }) {
     setForm(f => ({ ...f, zip: cleaned }));
   };
 
+  const FIELD_LABELS = {
+    firstName: 'First Name', lastName: 'Last Name', phone: 'Phone',
+    address1: 'Address Line 1', city: 'City', state: isUS ? 'State' : 'State / Province',
+    zip: isUS ? 'ZIP Code' : 'Postal code',
+  };
+  const missingFields = requiredFields.filter(f => {
+    if (f === 'phone') return !phoneOK;
+    if (f === 'zip') return !zipOK;
+    return !(form[f] || '').trim();
+  });
+  const missingAck = !form.nonProfessional;
+
   const handleContinue = () => {
-    if (!canContinue) { setShowErrors(true); return; }
     if (submitting) return;
+    if (!canContinue) {
+      setShowErrors(true);
+      // Scroll the first missing thing into view
+      requestAnimationFrame(() => {
+        const target = missingFields.length > 0
+          ? document.getElementById(missingFields[0])
+          : document.querySelector('.gc-ack-row');
+        target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (missingFields.length > 0) target?.focus?.();
+      });
+      return;
+    }
     setSubmitting(true);
     setTimeout(() => { setSubmitting(false); onNext(); }, SUBMIT_DELAY_MS);
   };
@@ -2330,13 +2362,16 @@ function StepVerify({ form, setForm, onNext, onBack }) {
 
       {/* Subscriber Status */}
       <div className="gc-section-block">
-        <div className="gc-eyebrow gc-step-eyebrow" style={{ marginBottom: 12 }}>Subscriber status</div>
+        <div className="gc-eyebrow gc-step-eyebrow" style={{ marginBottom: 12 }}>
+          Subscriber status<span className="req" style={{ color: 'var(--gc-bear)', marginLeft: 4 }}>*</span>
+        </div>
 
         <div
-          className={`gc-ack-row ${form.nonProfessional ? 'checked' : ''}`}
+          className={`gc-ack-row ${form.nonProfessional ? 'checked' : ''} ${showErrors && missingAck ? 'invalid' : ''}`}
           onClick={() => setForm(f => ({ ...f, nonProfessional: !f.nonProfessional }))}
           role="checkbox"
           aria-checked={form.nonProfessional}
+          aria-required="true"
           tabIndex={0}
           onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); setForm(f => ({ ...f, nonProfessional: !f.nonProfessional })); } }}
         >
@@ -2381,7 +2416,17 @@ function StepVerify({ form, setForm, onNext, onBack }) {
       {showErrors && !canContinue && (
         <div className="gc-form-error-banner">
           <IconAlert size={14} />
-          <span>Please complete all required fields and acknowledge your subscriber status.</span>
+          <span>
+            {missingFields.length > 0 && missingAck && (
+              <>Missing: {missingFields.map(f => FIELD_LABELS[f]).join(', ')} · plus subscriber-status acknowledgment.</>
+            )}
+            {missingFields.length > 0 && !missingAck && (
+              <>Missing: {missingFields.map(f => FIELD_LABELS[f]).join(', ')}.</>
+            )}
+            {missingFields.length === 0 && missingAck && (
+              <>Please check the <strong>Non-professional subscriber</strong> acknowledgment below to continue.</>
+            )}
+          </span>
         </div>
       )}
 
@@ -2391,7 +2436,7 @@ function StepVerify({ form, setForm, onNext, onBack }) {
         </button>
         <button
           className="gc-cta-primary"
-          disabled={!canContinue || submitting}
+          disabled={submitting}
           onClick={handleContinue}
         >
           {submitting ? <><IconSpinner size={16} /> Verifying…</> : <>Continue <IconArrowRight size={16} /></>}
