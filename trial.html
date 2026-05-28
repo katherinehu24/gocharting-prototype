@@ -48,8 +48,6 @@
   --gc-bear-tint: rgba(239, 83, 80, 0.1);
 
   /* US flag (decorative, accuracy-scoped — not brand colors) */
-  --gc-flag-red: #B22234;
-  --gc-flag-blue: #3C3B6E;
 
   /* Brand teal */
   --gc-teal: #03BA98;
@@ -681,32 +679,6 @@ a:hover { color: var(--gc-accent-hover); text-decoration: underline; }
   color: var(--gc-text-primary);
   display: flex; align-items: center; gap: 6px;
   flex-shrink: 0;
-}
-.gc-flag-us {
-  width: 18px; height: 12px;
-  border-radius: 2px;
-  background: linear-gradient(to bottom,
-    var(--gc-flag-red) 0%, var(--gc-flag-red) 8.33%,
-    white 8.33%, white 16.67%,
-    var(--gc-flag-red) 16.67%, var(--gc-flag-red) 25%,
-    white 25%, white 33.33%,
-    var(--gc-flag-red) 33.33%, var(--gc-flag-red) 41.67%,
-    white 41.67%, white 50%,
-    var(--gc-flag-red) 50%, var(--gc-flag-red) 58.33%,
-    white 58.33%, white 66.67%,
-    var(--gc-flag-red) 66.67%, var(--gc-flag-red) 75%,
-    white 75%, white 83.33%,
-    var(--gc-flag-red) 83.33%, var(--gc-flag-red) 91.67%,
-    white 91.67%, white 100%);
-  position: relative;
-  overflow: hidden;
-}
-.gc-flag-us::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0;
-  width: 50%; height: 53.85%;
-  background: var(--gc-flag-blue);
 }
 
 /* Section divider */
@@ -1374,28 +1346,6 @@ a:hover { color: var(--gc-accent-hover); text-decoration: underline; }
   border-radius: var(--gc-radius-pill);
 }
 
-/* Country pill on Step 2 form */
-.gc-country-pill {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: var(--gc-bg-input);
-  border: 1px solid var(--gc-border);
-  border-radius: var(--gc-radius-sm);
-  padding: 11px 14px;
-  font-size: 14px;
-  height: 44px;
-}
-.gc-country-pill-name { color: var(--gc-text-primary); font-weight: 500; flex-shrink: 0; }
-.gc-country-pill-meta {
-  margin-left: auto;
-  font-size: 11px;
-  color: var(--gc-text-tertiary);
-  font-style: italic;
-}
-@media (max-width: 600px) {
-  .gc-country-pill-meta { display: none; }
-}
 
 /* Phone prefix dropdown (form-level, syncs with address country) */
 .gc-phone-prefix-wrap { position: relative; flex-shrink: 0; }
@@ -2204,7 +2154,7 @@ function StepPlan({ selection, setSelection, onNext }) {
 }
 
 /* ---------- Step 2: Verify Identity (consolidated) ---------- */
-function StepVerify({ form, setForm, onNext, onBack, country = 'US' }) {
+function StepVerify({ form, setForm, onNext, onBack }) {
   const [showCriteria, setShowCriteria] = useState(false);
   const [showErrors, setShowErrors] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -2970,7 +2920,7 @@ function App() {
               <OrderSummary selection={selection} />
               <div className="gc-step-area">
                 {step === 0 && <StepPlan key="s0" selection={selection} setSelection={setSelection} onNext={next} />}
-                {step === 1 && <StepVerify key="s1" form={form} setForm={setForm} onNext={next} onBack={back} country={country} />}
+                {step === 1 && <StepVerify key="s1" form={form} setForm={setForm} onNext={next} onBack={back} />}
                 {step === 2 && <StepConfirm key="s2" form={form} setForm={setForm} onNext={next} onBack={back} />}
               </div>
             </div>
