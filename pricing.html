@@ -187,9 +187,8 @@
   .billing-helper { font-size: 12px; color: var(--text-3); }
 
   /* ─── tier grid ──────────────────────────────────────────────────── */
-  .tiers { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; align-items: stretch; }
-  @media (max-width: 1080px) { .tiers { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 600px)  { .tiers { grid-template-columns: 1fr; } }
+  .tiers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: stretch; max-width: 1080px; margin: 0 auto; }
+  @media (max-width: 980px) { .tiers { grid-template-columns: 1fr; max-width: 520px; } }
 
   .tier {
     position: relative;
@@ -302,9 +301,8 @@
   .compare-strip-row.us .name { color: var(--accent); font-weight: 700; }
 
   /* ─── data fees ──────────────────────────────────────────────────── */
-  .data-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-  @media (max-width: 1080px) { .data-grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 600px)  { .data-grid { grid-template-columns: 1fr; } }
+  .data-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 980px) { .data-grid { grid-template-columns: 1fr; max-width: 520px; margin: 0 auto; } }
   .data-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; padding: 24px; }
   .data-card h4 { margin: 0 0 12px; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-2); }
   .data-card ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
@@ -318,26 +316,6 @@
   .pre.add { background: rgba(255,179,0,0.18); color: var(--warn); }
   .data-foot { margin-top: 16px; padding: 16px 20px; background: var(--bg-alt); border: 1px solid var(--border); border-radius: 4px; font-size: 12px; color: var(--text-2); display: flex; gap: 10px; align-items: center; }
   .data-foot .ind { width: 6px; height: 6px; background: var(--bull); border-radius: 50%; }
-
-  /* ─── prop firm callout ──────────────────────────────────────────── */
-  .prop-callout {
-    position: relative;
-    background:
-      radial-gradient(ellipse 500px 300px at 90% 50%, rgba(118,61,253,0.18), transparent 60%),
-      linear-gradient(135deg, var(--bg-ink) 0%, var(--bg-card) 100%);
-    border: 1px solid var(--border-strong);
-    border-radius: 8px;
-    padding: 56px 48px;
-    display: grid; grid-template-columns: 1.4fr auto; gap: 32px; align-items: center;
-    overflow: hidden;
-  }
-  @media (max-width: 880px) { .prop-callout { grid-template-columns: 1fr; padding: 40px 24px; gap: 24px; } }
-  .prop-callout::before {
-    content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 4px; background: var(--accent);
-  }
-  .prop-callout .eyebrow { color: var(--accent); margin-bottom: 12px; }
-  .prop-callout h3 { margin: 0 0 14px; font-size: 28px; font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; color: var(--text); }
-  .prop-callout p { margin: 0; color: var(--text-2); font-size: 15px; line-height: 1.55; max-width: 560px; }
 
   /* ─── testimonials ───────────────────────────────────────────────── */
   .testi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
@@ -515,12 +493,11 @@
     <div class="billing-wrap">
       <div class="billing-toggle" role="tablist" aria-label="Billing period">
         <button data-billing="monthly" role="tab" aria-selected="false">Monthly</button>
-        <button data-billing="semi" role="tab" aria-selected="false">Semi-Annual</button>
         <button data-billing="annual" role="tab" aria-selected="true" class="active">
-          Annual <span class="best-value">Best Value</span>
+          Annual <span class="best-value">Save 16%</span>
         </button>
       </div>
-      <div class="billing-helper" id="billing-helper">Billed annually — save up to $120/year vs monthly</div>
+      <div class="billing-helper" id="billing-helper">Annual billing saves 16% OFF — cancel anytime</div>
     </div>
 
     <div class="tiers">
@@ -528,87 +505,65 @@
       <!-- FREE -->
       <article class="tier" data-tier="free">
         <div class="tier-name">Free</div>
-        <div class="tier-tagline">Real charts, no time limits. Get a feel for the platform.</div>
+        <div class="tier-tagline">Real charts and the GoCharting platform — no time limit, no card required.</div>
         <div class="price-row">
           <span class="price-currency">$</span>
           <span class="price-amount">0</span>
           <span class="price-period">forever</span>
         </div>
-        <div class="price-note">Email registration required</div>
+        <div class="price-note">No card required · Expiry never</div>
         <ul>
-          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Standard candlestick & line charts</span></li>
-          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">15 of 130+ indicators</span></li>
-          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Delayed market data (15-min)</span></li>
-          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">3 saved layouts</span></li>
-          <li><svg class="tick muted"><use href="#i-check"/></svg><span class="label" style="color:var(--text-3)">No footprint, DOM, or volume profile</span></li>
-          <li><svg class="tick muted"><use href="#i-check"/></svg><span class="label" style="color:var(--text-3)">No live trading</span></li>
+          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">NASDAQ &amp; NYSE EOD · CME Futures EOD</span></li>
+          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Basic Market Profile &amp; Volume Profile</span></li>
+          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Candlestick Pattern Recognition</span></li>
+          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Simulated (Paper) Trading</span></li>
+          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">5 Watchlists · 30 Saved Workspaces</span></li>
+          <li><svg class="tick muted"><use href="#i-check"/></svg><span class="label" style="color:var(--text-3)">No Footprint, real-time, or live trading</span></li>
         </ul>
         <a href="trial.html" class="btn btn-secondary btn-block tier-cta">Start free</a>
       </article>
 
-      <!-- STARTER -->
-      <article class="tier" data-tier="starter">
-        <div class="tier-name">Starter</div>
-        <div class="tier-tagline">Core orderflow for the part-time, after-hours trader.</div>
+      <!-- US STOCKS -->
+      <article class="tier" data-tier="stocks">
+        <div class="tier-name">US Stocks</div>
+        <div class="tier-tagline">Real-time NASDAQ &amp; NYSE data with Level 1 quotes. Upgrade to Level 2 &amp; 3 for full market depth.</div>
         <div class="price-row">
           <span class="price-currency">$</span>
-          <span class="price-amount" data-price="starter">24</span>
+          <span class="price-amount" data-price="stocks">35</span>
           <span class="price-period" data-period>/mo</span>
         </div>
-        <div class="price-note" data-savings="starter"><span class="strike">$29</span><span class="save">Save $60/yr</span></div>
+        <div class="price-note" data-savings="stocks"><span class="save">Level 2 &amp; 3 — $49/mo</span></div>
         <ul>
-          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Footprint & cluster charts</span></li>
-          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">DOM (Depth of Market)</span></li>
-          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Volume profile (session & visible-range)</span></li>
-          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">All 130+ indicators</span></li>
-          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">1 broker connection</span></li>
-          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Email support</span></li>
+          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Real-time NASDAQ &amp; NYSE Level 1</span></li>
+          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Footprint &amp; Imbalance Charts</span></li>
+          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Chart Trading · Watchlist Trading</span></li>
+          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Power Trades · Time &amp; Sales</span></li>
+          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Price &amp; Delta Alerts (100) · Webhooks</span></li>
+          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">WhatsApp support</span></li>
         </ul>
-        <a href="trial.html" class="btn btn-secondary btn-block tier-cta">Get Starter</a>
+        <a href="trial.html" class="btn btn-secondary btn-block tier-cta">Start US Stocks trial</a>
       </article>
 
-      <!-- PRO -->
-      <article class="tier featured" data-tier="pro">
+      <!-- CME FUTURES PACKAGE -->
+      <article class="tier featured" data-tier="futures">
         <div class="tier-badge">Most popular</div>
-        <div class="tier-name">Pro</div>
-        <div class="tier-tagline">The full orderflow workstation. Multi-broker, priority support.</div>
+        <div class="tier-name">CME Futures Package</div>
+        <div class="tier-tagline">Real-time CME exchange data for futures traders — /ES, /MES, /NQ, /6B, /6E.</div>
         <div class="price-row">
           <span class="price-currency">$</span>
-          <span class="price-amount" data-price="pro">49</span>
+          <span class="price-amount" data-price="futures">35</span>
           <span class="price-period" data-period>/mo</span>
         </div>
-        <div class="price-note" data-savings="pro"><span class="strike">$59</span><span class="save">Save $120/yr</span></div>
+        <div class="price-note" data-savings="futures"><span class="save">7-day free trial</span></div>
         <ul>
-          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Everything in Starter</span></li>
-          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Market profile (TPO) & delta/CVD</span></li>
-          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Renko, Kagi, Heikin Ashi, Tick charts</span></li>
-          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Unlimited broker connections</span></li>
-          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Replay mode + multi-session</span></li>
-          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Priority chat support</span></li>
+          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Real-time CME exchange data</span></li>
+          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Orderflow Charts (Footprint &amp; Imbalance)</span></li>
+          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Tick-based Market &amp; Volume Profile</span></li>
+          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">CVD and Commitment of Trades</span></li>
+          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Level 2 &amp; 3 DOM Feed from Brokers</span></li>
+          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">WhatsApp support</span></li>
         </ul>
-        <a href="trial.html" class="btn btn-primary btn-block tier-cta">Get Pro</a>
-      </article>
-
-      <!-- LIFETIME -->
-      <article class="tier" data-tier="lifetime">
-        <div class="tier-badge deal">Best deal</div>
-        <div class="tier-name">Lifetime</div>
-        <div class="tier-tagline">One payment. Full Pro access, every future update, forever.</div>
-        <div class="price-row">
-          <span class="price-currency">$</span>
-          <span class="price-amount">799</span>
-          <span class="price-period">once</span>
-        </div>
-        <div class="price-note"><span class="save">Pays for itself in ~16 months</span></div>
-        <ul>
-          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Everything in Pro</span></li>
-          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">All future major releases included</span></li>
-          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Lifetime priority support</span></li>
-          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Transferable to one heir account</span></li>
-          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">No renewal, no auto-billing, ever</span></li>
-          <li><svg class="tick"><use href="#i-check"/></svg><span class="label">Founder Discord access</span></li>
-        </ul>
-        <a href="trial.html" class="btn btn-secondary btn-block tier-cta">Buy Lifetime</a>
+        <a href="trial.html" class="btn btn-primary btn-block tier-cta">Start CME Futures trial</a>
       </article>
 
     </div>
@@ -628,9 +583,8 @@
           <tr>
             <th>Feature</th>
             <th>Free</th>
-            <th>Starter</th>
-            <th class="featured">Pro</th>
-            <th>Lifetime</th>
+            <th>US Stocks</th>
+            <th class="featured">CME Futures</th>
           </tr>
         </thead>
         <tbody id="compare-body">
@@ -665,59 +619,38 @@
   <div class="container">
     <div class="section-head">
       <h2>Market data — what's included.</h2>
-      <p>Traders always look for this. Here it is, plainly stated, per tier.</p>
+      <p>Traders always look for this. Here it is, plainly stated, per plan.</p>
     </div>
     <div class="data-grid">
       <div class="data-card">
         <h4>Free</h4>
         <ul>
-          <li><span class="pre inc">✓</span><span><strong>Crypto</strong> — real-time included</span></li>
-          <li><span class="pre add">!</span><span>Futures, forex, equities — 15-min delayed</span></li>
+          <li><span class="pre inc">✓</span><span><strong>NASDAQ &amp; NYSE</strong> — End-of-day data</span></li>
+          <li><span class="pre inc">✓</span><span><strong>CME Futures</strong> — End-of-day data</span></li>
+          <li><span class="pre add">!</span><span>No real-time, no Level 2 / DOM</span></li>
         </ul>
       </div>
       <div class="data-card">
-        <h4>Starter</h4>
+        <h4>US Stocks</h4>
         <ul>
-          <li><span class="pre inc">✓</span><span><strong>Crypto</strong> — real-time</span></li>
-          <li><span class="pre inc">✓</span><span><strong>Forex</strong> — real-time</span></li>
-          <li><span class="pre add">!</span><span>Futures via broker connection</span></li>
+          <li><span class="pre inc">✓</span><span><strong>NASDAQ &amp; NYSE</strong> — real-time Level 1</span></li>
+          <li><span class="pre inc">✓</span><span>Level 2 &amp; 3 depth via $14/mo upgrade</span></li>
+          <li><span class="pre add">!</span><span>CME futures via separate plan</span></li>
         </ul>
       </div>
       <div class="data-card">
-        <h4>Pro</h4>
+        <h4>CME Futures Package</h4>
         <ul>
-          <li><span class="pre inc">✓</span><span><strong>Crypto, Forex, Futures</strong> — real-time</span></li>
-          <li><span class="pre inc">✓</span><span>US equities via broker (free)</span></li>
-          <li><span class="pre add">!</span><span>CME L2 add-on: $11/mo (exchange fee)</span></li>
-        </ul>
-      </div>
-      <div class="data-card">
-        <h4>Lifetime</h4>
-        <ul>
-          <li><span class="pre inc">✓</span><span>Same as Pro — real-time across all assets</span></li>
-          <li><span class="pre inc">✓</span><span>CME L2 add-on at cost, no markup</span></li>
+          <li><span class="pre inc">✓</span><span><strong>CME exchange</strong> — real-time data</span></li>
+          <li><span class="pre inc">✓</span><span>/ES, /MES, /NQ, /6B, /6E</span></li>
+          <li><span class="pre inc">✓</span><span>Level 2 &amp; 3 DOM via broker feed</span></li>
         </ul>
       </div>
     </div>
-    <div class="data-foot"><span class="ind"></span>No hidden data fees on platform pricing. Exchange-mandated fees (CME L2) are passed through at cost.</div>
+    <div class="data-foot"><span class="ind"></span>Exchange-mandated fees are passed through at cost. No hidden platform markups.</div>
   </div>
 </section>
 
-<!-- ============================== PROP FIRM ============================== -->
-<section class="tight">
-  <div class="container">
-    <div class="prop-callout">
-      <div>
-        <div class="eyebrow">Prop firm traders</div>
-        <h3>Trading a funded account?</h3>
-        <p>GoCharting plays nicely with TopStep, Apex, FTMO, and most prop firm rithmic/CQG feeds. Orderflow tools, real-time risk monitoring, and multi-session replay let you review every trade against the firm's drawdown rules — without bouncing between three apps.</p>
-      </div>
-      <div>
-        <a href="trial.html" class="btn btn-primary btn-lg">Set up your prop firm workspace <svg width="14" height="14"><use href="#i-arrow"/></svg></a>
-      </div>
-    </div>
-  </div>
-</section>
 
 <!-- ============================== TESTIMONIALS ============================== -->
 <section class="tight">
@@ -812,15 +745,11 @@
 
 <script>
   // ========== Pricing data ==========
-  // Per-tier monthly equivalent depending on billing period.
+  // Monthly-equivalent prices per billing period — matches gocharting.com/pricing.
+  // Annual gives 16% off vs. monthly (rounded to nearest dollar).
   const PRICES = {
-    starter: { monthly: 29, semi: 26, annual: 24, msrp: 29 },
-    pro:     { monthly: 59, semi: 54, annual: 49, msrp: 59 },
-  };
-  // Yearly $-savings vs monthly billed for a year (12 × monthly − period total).
-  const SAVINGS = {
-    semi:   { starter: 36, pro: 60 },
-    annual: { starter: 60, pro: 120 },
+    stocks:  { monthly: 35, annual: 29, msrp: 35 },  // US Stocks Level 1
+    futures: { monthly: 35, annual: 29, msrp: 35 },  // CME Futures Package
   };
 
   function applyBilling(period) {
@@ -830,36 +759,31 @@
       btn.setAttribute('aria-selected', on ? 'true' : 'false');
     });
 
-    // Update prices
-    ['starter','pro'].forEach(tier => {
+    ['stocks','futures'].forEach(tier => {
       const el = document.querySelector(`[data-price="${tier}"]`);
       if (el) el.textContent = PRICES[tier][period];
 
       const saveEl = document.querySelector(`[data-savings="${tier}"]`);
       if (!saveEl) return;
       if (period === 'monthly') {
-        saveEl.innerHTML = `<span style="color:var(--text-3)">Billed monthly</span>`;
+        if (tier === 'stocks') {
+          saveEl.innerHTML = `<span class="save">Level 2 &amp; 3 — $49/mo</span>`;
+        } else {
+          saveEl.innerHTML = `<span class="save">7-day free trial</span>`;
+        }
       } else {
-        const lbl = period === 'annual' ? 'Save $' + SAVINGS.annual[tier] + '/yr'
-                                        : 'Save $' + SAVINGS.semi[tier] + '/yr';
-        saveEl.innerHTML = `<span class="strike">$${PRICES[tier].msrp}</span><span class="save">${lbl}</span>`;
+        saveEl.innerHTML = `<span class="strike">$${PRICES[tier].msrp}</span><span class="save">Save 16% annual</span>`;
       }
     });
 
-    // Update period suffix
     document.querySelectorAll('[data-period]').forEach(el => {
-      el.textContent = period === 'monthly' ? '/mo' : '/mo, billed ' + (period === 'semi' ? '6mo' : 'yearly');
+      el.textContent = period === 'monthly' ? '/mo' : '/mo, billed yearly';
     });
 
-    // Update helper
     const helper = document.getElementById('billing-helper');
-    if (period === 'monthly') {
-      helper.textContent = 'Billed monthly · Cancel any time';
-    } else if (period === 'semi') {
-      helper.textContent = 'Billed every 6 months — save up to $60/year';
-    } else {
-      helper.textContent = 'Billed annually — save up to $120/year vs monthly';
-    }
+    helper.textContent = period === 'monthly'
+      ? 'Billed monthly · Cancel anytime'
+      : 'Annual billing saves 16% OFF — cancel anytime';
   }
 
   document.querySelectorAll('.billing-toggle button').forEach(btn => {
@@ -868,41 +792,50 @@
   applyBilling('annual');
 
   // ========== Comparison table ==========
+  // Columns: Free | US Stocks | CME Futures Package
+  // Mapped to verbatim features published on gocharting.com/pricing.
   const ROWS = [
-    { group: 'Charting & orderflow' },
-    { name: 'Standard candlestick & line charts',                   v: ['✓','✓','✓','✓'] },
-    { name: 'Footprint / cluster charts',                            v: ['—','✓','✓','✓'] },
-    { name: 'DOM (Depth of Market)',                                 v: ['—','✓','✓','✓'] },
-    { name: 'Volume profile (session, visible, fixed-range)',        v: ['—','✓','✓','✓'] },
-    { name: 'Market profile (TPO)',                                  v: ['—','—','✓','✓'] },
-    { name: 'Delta / CVD analysis',                                  v: ['—','—','✓','✓'] },
-    { name: 'Renko, Kagi, Heikin Ashi, Tick charts',                 v: ['—','—','✓','✓'] },
-    { name: '130+ built-in indicators',                              v: ['15','130+','130+','130+'] },
-    { name: 'VWAP, SuperTrend, CPR Pivots',                          v: ['VWAP','✓','✓','✓'] },
-    { name: 'Drawing tools (50+)',                                   v: ['Basic','✓','✓','✓'] },
-    { name: 'Replay mode + multi-session',                           v: ['—','—','✓','✓'] },
+    { group: 'Market data' },
+    { name: 'Real-time NASDAQ & NYSE',                               v: ['EOD only','✓ Level 1','—'] },
+    { name: 'Level 2 & 3 NASDAQ/NYSE depth',                         v: ['—','+$14/mo','—'] },
+    { name: 'Real-time CME exchange data',                           v: ['EOD only','—','✓'] },
+    { name: 'CME contracts (/ES, /MES, /NQ, /6B, /6E)',              v: ['EOD','—','✓'] },
+
+    { group: 'Orderflow & charts' },
+    { name: 'Standard candlestick & line charts',                    v: ['✓','✓','✓'] },
+    { name: 'Footprint & Imbalance Charts',                          v: ['—','✓','✓'] },
+    { name: 'Tick-based Market & Volume Profile',                    v: ['Basic','✓','✓'] },
+    { name: 'Advanced Market Profile (TPO)',                         v: ['—','✓','✓'] },
+    { name: 'CVD and Commitment of Trades',                          v: ['—','✓','✓'] },
+    { name: 'Orderflow Indicators',                                  v: ['—','✓','✓'] },
+    { name: 'Candlestick Pattern Recognition',                       v: ['✓','✓','✓'] },
+    { name: 'Custom & Seconds Time Intervals',                       v: ['—','✓','✓'] },
+    { name: 'Intraday Spread Charts',                                v: ['—','✓','✓'] },
 
     { group: 'Trading & execution' },
-    { name: 'Live broker integration',                               v: ['—','✓','✓','✓'] },
-    { name: 'Broker connections',                                    v: ['—','1','Unlimited','Unlimited'] },
-    { name: 'Chart-based execution (1-click)',                       v: ['—','✓','✓','✓'] },
-    { name: 'Bracket orders (OCO, OTO)',                             v: ['—','—','✓','✓'] },
-    { name: 'Price & volume alerts',                                 v: ['5','100','Unlimited','Unlimited'] },
-    { name: 'Risk monitor (per-trade & per-session)',                v: ['—','—','✓','✓'] },
+    { name: 'Simulated (Paper) Trading',                             v: ['✓','✓','✓'] },
+    { name: 'Live broker integration',                               v: ['—','✓','✓'] },
+    { name: 'Chart Trading · Watchlist Trading',                     v: ['—','✓','✓'] },
+    { name: 'Power Trades',                                          v: ['—','✓','✓'] },
+    { name: 'Time & Sales',                                          v: ['—','✓','✓'] },
+    { name: 'Level 2 & 3 DOM Feed from Brokers',                     v: ['—','✓','✓'] },
+    { name: 'Price & Delta Alerts',                                  v: ['—','100','100'] },
+    { name: 'Indicator Alerts',                                      v: ['—','5','5'] },
+    { name: 'Alert Webhooks',                                        v: ['—','✓','✓'] },
+    { name: 'Delta-based Scanner',                                   v: ['—','✓','✓'] },
 
-    { group: 'Platform & access' },
-    { name: 'Multi-asset (stocks, futures, forex, crypto)',          v: ['✓','✓','✓','✓'] },
-    { name: 'Web-based · no install required',                       v: ['✓','✓','✓','✓'] },
-    { name: 'Mac, Linux, Chromebook support',                        v: ['✓','✓','✓','✓'] },
-    { name: 'Saved layouts',                                         v: ['3','25','Unlimited','Unlimited'] },
-    { name: 'Cloud sync across devices',                             v: ['✓','✓','✓','✓'] },
-    { name: 'API & webhook access',                                  v: ['—','—','✓','✓'] },
+    { group: 'Platform & limits' },
+    { name: 'Web-based · no install required',                       v: ['✓','✓','✓'] },
+    { name: 'Mac, Linux, Chromebook support',                        v: ['✓','✓','✓'] },
+    { name: 'Charts per Tab',                                        v: ['2','8','8'] },
+    { name: 'Concurrent Charts',                                     v: ['4','25','25'] },
+    { name: 'Saved Chart Layouts',                                   v: ['30','200','200'] },
+    { name: 'Watchlists',                                            v: ['5','20','20'] },
+    { name: 'Symbols per Watchlist',                                 v: ['100','250','250'] },
+    { name: 'Devices',                                               v: ['1','Multi','Multi'] },
 
     { group: 'Support' },
-    { name: 'Email support',                                         v: ['Community','✓','✓','✓'] },
-    { name: 'Priority chat support',                                 v: ['—','—','✓','✓'] },
-    { name: 'Onboarding session',                                    v: ['—','—','—','✓'] },
-    { name: 'Founder Discord access',                                v: ['—','—','—','✓'] },
+    { name: 'Customer support',                                      v: ['Discord & Email','WhatsApp','WhatsApp'] },
   ];
 
   function cellHTML(val) {
@@ -933,25 +866,25 @@
   // ========== FAQ ==========
   const FAQ = [
     { q: "What's included in the free plan?",
-      a: "Standard candlestick and line charts, 15 of our 130+ indicators, basic drawing tools, three saved layouts, and 15-minute delayed market data for futures, forex, and equities. Crypto is real-time on every plan, including free. There are no time limits — the free plan is free forever, no credit card required, just an email." },
+      a: "End-of-day NASDAQ, NYSE, and CME Futures data, basic Market & Volume Profile, Candlestick Pattern Recognition, Simulated (Paper) Trading, 5 watchlists, and 30 saved workspaces. There are no time limits — the free plan is free forever, no card required." },
+    { q: "What's the difference between US Stocks and CME Futures Package?",
+      a: "Different real-time data feeds. US Stocks ($35/mo) gives you real-time NASDAQ & NYSE Level 1 — upgrade to Level 2 & 3 for $49/mo for full market depth. CME Futures Package ($35/mo) gives you real-time CME exchange data for /ES, /MES, /NQ, /6B, /6E and other CME contracts. Both plans include Footprint, DOM, Time & Sales, Power Trades, and all orderflow tools. Pick the market data you need." },
     { q: "Is there a contract or can I cancel anytime?",
-      a: "No contracts. Cancel any time directly from your account dashboard. If you cancel a paid plan mid-cycle, you keep access until the end of the period — we don't pro-rate refunds, but we don't lock you in either. Lifetime is a one-time payment with no recurring billing at all." },
+      a: "No contracts, no lock-in. Cancel any time directly from your account dashboard. If you cancel a paid plan mid-cycle, you keep access until the end of the period. All paid plans include a 7-day free trial before billing starts." },
     { q: "What brokers does GoCharting support for live trading?",
-      a: "Direct connections to Interactive Brokers, Tradovate, Rithmic, CQG, AMP, Tradestation, and the major crypto exchanges (Binance, Coinbase, Bybit, Kraken). Starter includes one connection; Pro and Lifetime include unlimited. We add new brokers based on user demand — see the live status page for what's connecting cleanly today." },
+      a: "Direct connections to Interactive Brokers, Tradovate, Rithmic, CQG, AMP, Tradestation, and the major crypto exchanges (Binance, Coinbase, Bybit, Kraken). All paid plans include broker integration with Chart Trading and Watchlist Trading. We add new brokers based on user demand." },
     { q: "Does GoCharting work on Mac and Linux?",
-      a: "Yes — that's the whole point. GoCharting runs in any modern browser (Chrome, Safari, Firefox, Edge) on macOS, Linux, ChromeOS, Windows, and even tablet browsers. No installer, no Windows VM, no Wine. We test against the latest two versions of each browser." },
+      a: "Yes — that's the whole point. GoCharting runs in any modern browser (Chrome, Safari, Firefox, Edge) on macOS, Linux, ChromeOS, Windows, and tablets. No installer, no Windows VM, no Wine. We test against the latest two versions of each browser." },
     { q: "What is a footprint chart and does GoCharting have one?",
-      a: "A footprint chart shows the bid/ask volume traded at each price level inside every bar — it's how serious orderflow traders read short-term aggression and absorption. Yes, GoCharting has native footprint and cluster charts (Bid×Ask, Delta, Volume, Imbalance modes) on Starter and above. They're built in, not a third-party add-on." },
+      a: "A footprint chart shows the bid/ask volume traded at each price level inside every bar — it's how orderflow traders read short-term aggression and absorption. Yes, GoCharting has native Footprint & Imbalance Charts on both US Stocks and CME Futures Package, with Bid×Ask, Delta, Volume, and Imbalance modes. Built in, not a third-party add-on." },
     { q: "What market data is included? Are there data fees?",
-      a: "Crypto and forex real-time are included on Starter and above. Futures real-time comes through your broker connection on Pro and Lifetime. The only optional add-on is CME Level 2 depth, which is an exchange fee passed through at cost (~$11/mo) — we don't mark it up. US equities real-time is free via your broker. Free plan gets 15-minute delayed data for everything except crypto." },
+      a: "Free: NASDAQ & NYSE end-of-day, CME Futures end-of-day. US Stocks: real-time NASDAQ & NYSE Level 1. CME Futures Package: real-time CME exchange data. Exchange-mandated fees (e.g., NASDAQ TotalView Level 2 & 3) are passed through at cost — no platform markup." },
     { q: "How is GoCharting different from TradingView?",
-      a: "TradingView is excellent for indicator-based and chart-pattern trading. GoCharting is built for orderflow — footprint, DOM, volume profile, market profile, delta/CVD are first-class features, not premium add-ons or community scripts. We also do unlimited broker connections on Pro, and the entire platform feels denser and more keyboard-driven, which serious day traders tend to prefer." },
+      a: "TradingView is excellent for indicator-based and chart-pattern trading. GoCharting is built for orderflow — Footprint, DOM, Volume Profile, Market Profile, CVD are first-class features, not premium add-ons or community scripts. Web-native like TradingView, but denser and keyboard-driven, which serious day traders tend to prefer." },
     { q: "Can I use GoCharting for prop firm trading?",
-      a: "Yes. We work cleanly with TopStep, Apex, FTMO, and most firms running on Rithmic, CQG, or Tradovate feeds. The risk monitor (Pro+) is purpose-built for funded accounts — set per-day, per-trade, and per-session limits that mirror the firm's drawdown rules. See the prop firm workspace setup for a working starter config." },
-    { q: "What happens to my charts and settings if I downgrade?",
-      a: "Nothing is deleted. Layouts, drawings, alerts, and broker connections beyond the lower tier's limits are preserved but become read-only — you can still see them, you just can't modify or add new ones until you upgrade or remove some. If you re-upgrade later, everything reactivates exactly as it was." },
-    { q: "Is there a student or annual discount?",
-      a: "Annual billing already saves up to $120/year vs monthly. We don't run a separate student discount, but the free plan covers what most students need to learn the platform. For prop firms or trading rooms onboarding 10+ traders at once, drop us a line for team pricing — that's an actual discount, not a credit-card-required trial." },
+      a: "Yes. GoCharting works with most prop firms running on Rithmic, CQG, or Tradovate feeds. Connect your funded account through Tradovate or Rithmic broker integrations and use the same Orderflow Charts, DOM, and risk tools you would on a personal account." },
+    { q: "Is there an annual or student discount?",
+      a: "Annual billing saves 16% off the monthly price. We don't run a separate student discount — the free plan covers what most students need to learn the platform. For teams onboarding multiple traders, contact support for team pricing." },
   ];
 
   const faqList = document.getElementById('faq-list');
