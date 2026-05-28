@@ -1397,6 +1397,120 @@ a:hover { color: var(--gc-accent-hover); text-decoration: underline; }
   .gc-country-pill-meta { display: none; }
 }
 
+/* Phone prefix dropdown (form-level, syncs with address country) */
+.gc-phone-prefix-wrap { position: relative; flex-shrink: 0; }
+.gc-phone-prefix-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--gc-bg-input);
+  border: 1px solid var(--gc-border);
+  border-radius: var(--gc-radius-sm);
+  padding: 12px 12px;
+  font-size: 14px;
+  color: var(--gc-text-primary);
+  height: 44px;
+  cursor: pointer;
+  transition: all var(--gc-dur-fast) var(--gc-ease);
+}
+.gc-phone-prefix-trigger:hover { border-color: var(--gc-border-strong); }
+.gc-phone-prefix-trigger.open { border-color: var(--gc-accent); box-shadow: 0 0 0 3px var(--gc-accent-glow); }
+.gc-phone-prefix-trigger .gc-country-flag { font-size: 18px; }
+.gc-phone-prefix-trigger svg { color: var(--gc-text-secondary); }
+
+.gc-phone-prefix-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 280px;
+  max-height: 320px;
+  overflow-y: auto;
+  background: var(--gc-bg-raised);
+  border: 1px solid var(--gc-border-strong);
+  border-radius: var(--gc-radius-md);
+  padding: 6px;
+  box-shadow: var(--gc-shadow-modal);
+  z-index: 60;
+  animation: gcCountryMenu 160ms var(--gc-ease);
+}
+.gc-phone-prefix-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 10px;
+  border-radius: var(--gc-radius-sm);
+  background: transparent;
+  color: var(--gc-text-primary);
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+}
+.gc-phone-prefix-option:hover { background: var(--gc-bg-hover); }
+.gc-phone-prefix-option.selected { background: var(--gc-accent-soft); color: var(--gc-accent-bright); }
+.gc-phone-prefix-option-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gc-phone-prefix-option-dial { color: var(--gc-text-secondary); font-size: 12px; flex-shrink: 0; }
+.gc-phone-prefix-option.selected .gc-phone-prefix-option-dial { color: var(--gc-accent-bright); }
+
+/* Country field dropdown (address country, replaces the pill) */
+.gc-country-field-wrap { position: relative; width: 100%; }
+.gc-country-field-trigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  background: var(--gc-bg-input);
+  border: 1px solid var(--gc-border);
+  border-radius: var(--gc-radius-sm);
+  padding: 11px 14px;
+  font-size: 14px;
+  color: var(--gc-text-primary);
+  height: 44px;
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--gc-dur-fast) var(--gc-ease);
+}
+.gc-country-field-trigger:hover { border-color: var(--gc-border-strong); }
+.gc-country-field-trigger.open { border-color: var(--gc-accent); box-shadow: 0 0 0 3px var(--gc-accent-glow); }
+.gc-country-field-trigger .gc-country-flag { font-size: 18px; line-height: 1; }
+.gc-country-field-name { flex: 1; font-weight: 500; }
+.gc-country-field-chevron { color: var(--gc-text-secondary); display: inline-flex; transition: transform var(--gc-dur-fast) var(--gc-ease); }
+.gc-country-field-trigger.open .gc-country-field-chevron { transform: rotate(180deg); }
+
+.gc-country-field-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  max-height: 320px;
+  overflow-y: auto;
+  background: var(--gc-bg-raised);
+  border: 1px solid var(--gc-border-strong);
+  border-radius: var(--gc-radius-md);
+  padding: 6px;
+  box-shadow: var(--gc-shadow-modal);
+  z-index: 60;
+  animation: gcCountryMenu 160ms var(--gc-ease);
+}
+.gc-country-field-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: var(--gc-radius-sm);
+  background: transparent;
+  color: var(--gc-text-primary);
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+}
+.gc-country-field-option:hover { background: var(--gc-bg-hover); }
+.gc-country-field-option.selected { background: var(--gc-accent-soft); color: var(--gc-accent-bright); }
+.gc-country-field-option-name { flex: 1; }
+
 /* International notice */
 .gc-intl-notice {
   max-width: 580px;
@@ -1523,6 +1637,38 @@ const COUNTRIES = [
   { code: 'ROW', name: 'Rest of World', flag: '🌍', supported: false },
 ];
 
+// Full country list for the address + phone-prefix dropdowns on the form
+const COUNTRY_LIST = [
+  { code: 'US', name: 'United States', flag: '🇺🇸', dial: '+1' },
+  { code: 'CA', name: 'Canada', flag: '🇨🇦', dial: '+1' },
+  { code: 'GB', name: 'United Kingdom', flag: '🇬🇧', dial: '+44' },
+  { code: 'IE', name: 'Ireland', flag: '🇮🇪', dial: '+353' },
+  { code: 'DE', name: 'Germany', flag: '🇩🇪', dial: '+49' },
+  { code: 'FR', name: 'France', flag: '🇫🇷', dial: '+33' },
+  { code: 'IT', name: 'Italy', flag: '🇮🇹', dial: '+39' },
+  { code: 'ES', name: 'Spain', flag: '🇪🇸', dial: '+34' },
+  { code: 'NL', name: 'Netherlands', flag: '🇳🇱', dial: '+31' },
+  { code: 'CH', name: 'Switzerland', flag: '🇨🇭', dial: '+41' },
+  { code: 'SE', name: 'Sweden', flag: '🇸🇪', dial: '+46' },
+  { code: 'NO', name: 'Norway', flag: '🇳🇴', dial: '+47' },
+  { code: 'DK', name: 'Denmark', flag: '🇩🇰', dial: '+45' },
+  { code: 'IN', name: 'India', flag: '🇮🇳', dial: '+91' },
+  { code: 'JP', name: 'Japan', flag: '🇯🇵', dial: '+81' },
+  { code: 'CN', name: 'China', flag: '🇨🇳', dial: '+86' },
+  { code: 'SG', name: 'Singapore', flag: '🇸🇬', dial: '+65' },
+  { code: 'HK', name: 'Hong Kong', flag: '🇭🇰', dial: '+852' },
+  { code: 'KR', name: 'South Korea', flag: '🇰🇷', dial: '+82' },
+  { code: 'TW', name: 'Taiwan', flag: '🇹🇼', dial: '+886' },
+  { code: 'AU', name: 'Australia', flag: '🇦🇺', dial: '+61' },
+  { code: 'NZ', name: 'New Zealand', flag: '🇳🇿', dial: '+64' },
+  { code: 'BR', name: 'Brazil', flag: '🇧🇷', dial: '+55' },
+  { code: 'MX', name: 'Mexico', flag: '🇲🇽', dial: '+52' },
+  { code: 'AE', name: 'United Arab Emirates', flag: '🇦🇪', dial: '+971' },
+  { code: 'IL', name: 'Israel', flag: '🇮🇱', dial: '+972' },
+  { code: 'ZA', name: 'South Africa', flag: '🇿🇦', dial: '+27' },
+];
+const COUNTRY_BY_CODE = Object.fromEntries(COUNTRY_LIST.map(c => [c.code, c]));
+
 const US_STATES = [
   ['AL','Alabama'],['AK','Alaska'],['AZ','Arizona'],['AR','Arkansas'],['CA','California'],
   ['CO','Colorado'],['CT','Connecticut'],['DE','Delaware'],['DC','District of Columbia'],
@@ -1623,6 +1769,100 @@ const IconLogo = ({ size = 24 }) => (
     <circle cx="25" cy="16" r="1.8" fill="white" />
   </svg>
 );
+
+/* ---------- Phone prefix select (form-level, syncs with address country) ---------- */
+function PhonePrefixSelect({ country, onCountryChange }) {
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef(null);
+  const current = COUNTRY_BY_CODE[country] || COUNTRY_BY_CODE['US'];
+
+  useEffect(() => {
+    if (!open) return;
+    const onDocClick = (e) => { if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false); };
+    const onKey = (e) => { if (e.key === 'Escape') setOpen(false); };
+    document.addEventListener('mousedown', onDocClick);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDocClick);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  return (
+    <div className="gc-phone-prefix-wrap" ref={wrapRef}>
+      <button type="button" className={`gc-phone-prefix-trigger ${open ? 'open' : ''}`} onClick={() => setOpen(o => !o)} aria-haspopup="listbox" aria-expanded={open} aria-label={`Phone country: ${current.name} ${current.dial}`}>
+        <span className="gc-country-flag" aria-hidden="true">{current.flag}</span>
+        <span className="gc-mono">{current.dial}</span>
+        <IconChevronDown size={12} />
+      </button>
+      {open && (
+        <div className="gc-phone-prefix-menu" role="listbox">
+          {COUNTRY_LIST.map(c => (
+            <button
+              key={c.code}
+              type="button"
+              className={`gc-phone-prefix-option ${c.code === country ? 'selected' : ''}`}
+              onClick={() => { onCountryChange(c.code); setOpen(false); }}
+              role="option"
+              aria-selected={c.code === country}
+            >
+              <span className="gc-country-flag" aria-hidden="true">{c.flag}</span>
+              <span className="gc-phone-prefix-option-name">{c.name}</span>
+              <span className="gc-mono gc-phone-prefix-option-dial">{c.dial}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ---------- Country field select (form-level address country) ---------- */
+function CountryFieldSelect({ country, onCountryChange }) {
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef(null);
+  const current = COUNTRY_BY_CODE[country] || COUNTRY_BY_CODE['US'];
+
+  useEffect(() => {
+    if (!open) return;
+    const onDocClick = (e) => { if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false); };
+    const onKey = (e) => { if (e.key === 'Escape') setOpen(false); };
+    document.addEventListener('mousedown', onDocClick);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDocClick);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  return (
+    <div className="gc-country-field-wrap" ref={wrapRef}>
+      <button type="button" className={`gc-country-field-trigger ${open ? 'open' : ''}`} onClick={() => setOpen(o => !o)} aria-haspopup="listbox" aria-expanded={open} aria-label={`Country: ${current.name}`}>
+        <span className="gc-country-flag" aria-hidden="true">{current.flag}</span>
+        <span className="gc-country-field-name">{current.name}</span>
+        <span className="gc-country-field-chevron"><IconChevronDown size={14} /></span>
+      </button>
+      {open && (
+        <div className="gc-country-field-menu" role="listbox">
+          {COUNTRY_LIST.map(c => (
+            <button
+              key={c.code}
+              type="button"
+              className={`gc-country-field-option ${c.code === country ? 'selected' : ''}`}
+              onClick={() => { onCountryChange(c.code); setOpen(false); }}
+              role="option"
+              aria-selected={c.code === country}
+            >
+              <span className="gc-country-flag" aria-hidden="true">{c.flag}</span>
+              <span className="gc-country-field-option-name">{c.name}</span>
+              {c.code === country && <span className="gc-country-check"><IconCheck size={14} /></span>}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 /* ---------- Country selector ---------- */
 function CountrySelector({ country, onChange }) {
@@ -1973,9 +2213,12 @@ function StepVerify({ form, setForm, onNext, onBack, country = 'US' }) {
 
   useEffect(() => { firstNameRef.current?.focus(); }, []);
 
+  const isUS = form.country === 'US';
   const requiredFields = ['firstName', 'lastName', 'phone', 'address1', 'city', 'state', 'zip'];
   const phoneOK = isPhoneComplete(form.phone);
-  const zipOK = /^\d{5}(-\d{4})?$/.test((form.zip || '').trim());
+  const zipOK = isUS
+    ? /^\d{5}(-\d{4})?$/.test((form.zip || '').trim())
+    : !!(form.zip || '').trim();
   const allFilled = requiredFields.every(f => {
     if (f === 'phone') return phoneOK;
     if (f === 'zip') return zipOK;
@@ -1985,7 +2228,12 @@ function StepVerify({ form, setForm, onNext, onBack, country = 'US' }) {
 
   const onField = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
   const onPhone = (e) => setForm(f => ({ ...f, phone: formatPhone(e.target.value) }));
-  const onZip = (e) => setForm(f => ({ ...f, zip: e.target.value.replace(/[^\d-]/g, '').slice(0, 10) }));
+  const onZip = (e) => {
+    const cleaned = isUS
+      ? e.target.value.replace(/[^\d-]/g, '').slice(0, 10)
+      : e.target.value.slice(0, 12);
+    setForm(f => ({ ...f, zip: cleaned }));
+  };
 
   const handleContinue = () => {
     if (!canContinue) { setShowErrors(true); return; }
@@ -2047,10 +2295,7 @@ function StepVerify({ form, setForm, onNext, onBack, country = 'US' }) {
         <div className="gc-field gc-form-grid-full">
           <label className="gc-label" htmlFor="phone">Phone<span className="req">*</span></label>
           <div className="gc-phone-row">
-            <div className="gc-phone-prefix">
-              <span className="gc-flag-us" aria-hidden="true" />
-              <span className="gc-mono">+1</span>
-            </div>
+            <PhonePrefixSelect country={form.country} onCountryChange={(c) => setForm(f => ({ ...f, country: c, state: f.country === c ? f.state : '' }))} />
             <div className="gc-input-wrap" style={{ flex: 1 }}>
               <input
                 id="phone"
@@ -2094,47 +2339,54 @@ function StepVerify({ form, setForm, onNext, onBack, country = 'US' }) {
           </div>
         </div>
         <div className="gc-field">
-          <label className="gc-label" htmlFor="state">State<span className="req">*</span></label>
+          <label className="gc-label" htmlFor="state">{isUS ? 'State' : 'State / Province'}<span className="req">*</span></label>
           <div className="gc-input-wrap">
-            <select
-              id="state"
-              className={`gc-input gc-select ${fieldError('state') ? 'error' : ''}`}
-              value={form.state}
-              onChange={onField('state')}
-              autoComplete="address-level1"
-            >
-              <option value="">Select state…</option>
-              {US_STATES.map(([code, name]) => (
-                <option key={code} value={code}>{name}</option>
-              ))}
-            </select>
+            {isUS ? (
+              <select
+                id="state"
+                className={`gc-input gc-select ${fieldError('state') ? 'error' : ''}`}
+                value={form.state}
+                onChange={onField('state')}
+                autoComplete="address-level1"
+              >
+                <option value="">Select state…</option>
+                {US_STATES.map(([code, name]) => (
+                  <option key={code} value={code}>{name}</option>
+                ))}
+              </select>
+            ) : (
+              <input
+                id="state"
+                className={`gc-input ${fieldError('state') ? 'error' : ''}`}
+                value={form.state}
+                onChange={onField('state')}
+                autoComplete="address-level1"
+                placeholder="State / Province / Region"
+              />
+            )}
+            {!isUS && fieldValid('state') && <span className="gc-input-check"><IconCheck size={12} /></span>}
           </div>
         </div>
 
         <div className="gc-field">
-          <label className="gc-label" htmlFor="zip">ZIP Code<span className="req">*</span></label>
+          <label className="gc-label" htmlFor="zip">{isUS ? 'ZIP Code' : 'Postal code'}<span className="req">*</span></label>
           <div className="gc-input-wrap">
             <input
               id="zip"
               className={`gc-input ${fieldError('zip') ? 'error' : ''}`}
               value={form.zip}
               onChange={onZip}
-              inputMode="numeric"
+              inputMode={isUS ? 'numeric' : 'text'}
               autoComplete="postal-code"
-              placeholder="94103"
-              maxLength={10}
+              maxLength={12}
             />
             {fieldValid('zip') && <span className="gc-input-check"><IconCheck size={12} /></span>}
           </div>
-          {fieldError('zip') && form.zip && <div className="gc-input-error-msg">Enter a valid 5-digit ZIP code.</div>}
+          {fieldError('zip') && form.zip && isUS && <div className="gc-input-error-msg">Enter a valid 5-digit ZIP code.</div>}
         </div>
         <div className="gc-field">
           <label className="gc-label" htmlFor="country">Country<span className="req">*</span></label>
-          <div className="gc-country-pill">
-            <span className="gc-country-flag" aria-hidden="true">🇺🇸</span>
-            <span className="gc-country-pill-name">United States</span>
-            <span className="gc-country-pill-meta">Set via global selector</span>
-          </div>
+          <CountryFieldSelect country={form.country} onCountryChange={(c) => setForm(f => ({ ...f, country: c, state: '' }))} />
         </div>
       </div>
 
@@ -2291,10 +2543,7 @@ function PhoneSubStep({ form, setForm, phoneOK, canSend, onSend, onBack }) {
       <div className="gc-field" style={{ marginBottom: 24 }}>
         <label className="gc-label" htmlFor="phone-step3">Phone number<span className="req">*</span></label>
         <div className="gc-phone-row">
-          <div className="gc-phone-prefix">
-            <span className="gc-flag-us" aria-hidden="true" />
-            <span className="gc-mono">+1</span>
-          </div>
+          <PhonePrefixSelect country={form.country} onCountryChange={(c) => setForm(f => ({ ...f, country: c, state: f.country === c ? f.state : '' }))} />
           <div className="gc-input-wrap" style={{ flex: 1 }}>
             <input
               id="phone-step3"
@@ -2633,7 +2882,7 @@ function App() {
     city: '',
     state: '',
     zip: '',
-    country: 'United States',
+    country: 'US',
     nonProfessional: false,
     smsConsent: false,
     retentionAck: false,
@@ -2661,7 +2910,7 @@ function App() {
     setAppOpened(false);
     setForm({
       firstName: '', lastName: '', phone: '', address1: '',
-      city: '', state: '', zip: '', country: 'United States',
+      city: '', state: '', zip: '', country: 'US',
       nonProfessional: false, smsConsent: false, retentionAck: false,
     });
     setSelection({ futures: true, crypto: false, futuresVariant: VARIANT_PREMIUM });
