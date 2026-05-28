@@ -1822,17 +1822,90 @@ a:hover { color: var(--gc-accent-hover); text-decoration: underline; }
 <script type="text/babel">
 const { useState, useEffect, useRef, useCallback, useMemo } = React;
 
+/* ============================================================
+   Custom hooks — shared behavior factored out of components
+   ============================================================ */
+
+// Close a dropdown when clicking outside it or pressing Escape.
+// Used by CountrySelector, PhonePrefixSelect, CountryFieldSelect.
+function useClickOutside(ref, onClose, enabled = true) {
+  useEffect(() => {
+    if (!enabled) return;
+    const onDocClick = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) onClose();
+    };
+    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('mousedown', onDocClick);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDocClick);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [enabled, ref, onClose]);
+}
+
+// Simulate a network submit with a delay and a "submitting" flag.
+// Used by every Step CTA (Plan, Verify, PhoneSubStep, Trial).
+// Returns [submitting, submit] — call submit() to fire the simulated request.
+function useSimulatedSubmit(onComplete, delayMs = SUBMIT_DELAY_MS) {
+  const [submitting, setSubmitting] = useState(false);
+  const submit = useCallback(() => {
+    if (submitting) return;
+    setSubmitting(true);
+    setTimeout(() => { setSubmitting(false); onComplete(); }, delayMs);
+  }, [submitting, onComplete, delayMs]);
+  return [submitting, submit];
+}
+
 /* ---------- Constants & copy ---------- */
-// Plan identifiers — match the product names on gocharting.com/pricing
+// Plan identifiers — match product names on gocharting.com/pricing
 const PLAN_FUTURES = 'futures';      // CME Futures Package
 const PLAN_STOCKS = 'stocks';        // US Stocks (Level 1 or Level 2 & 3)
 const STOCKS_L1 = 'L1';
 const STOCKS_L23 = 'L23';
 
-const PRICES = {
-  [PLAN_FUTURES]: 35,                              // CME Futures Package — $35/mo
-  [PLAN_STOCKS]: { [STOCKS_L1]: 35, [STOCKS_L23]: 49 },  // US Stocks — $35 (L1) or $49 (L2&3)
+// Plan definitions — adding a new plan = adding an entry here.
+// Variants are optional; a plan without variants is priced at `base`.
+const PLAN_DEFS = {
+  [PLAN_FUTURES]: {
+    name: 'CME Futures Package',
+    badge: 'Futures',
+    desc: 'Real-time CME exchange data — /ES, /MES, /NQ, /6B, /6E.',
+    base: 35,
+    variants: null,
+  },
+  [PLAN_STOCKS]: {
+    name: 'US Stocks',
+    badge: 'Stocks',
+    desc: 'Real-time NASDAQ & NYSE Level 1 quotes.',
+    base: 35,
+    variants: {
+      [STOCKS_L1]:  { suffix: 'Level 1',     price: 35 },
+      [STOCKS_L23]: { suffix: 'Level 2 & 3', price: 49 },
+    },
+  },
 };
+
+// Single source of truth for plan pricing.
+const getPlanPrice = (planId, variant) => {
+  const def = PLAN_DEFS[planId];
+  if (!def) return 0;
+  if (def.variants && variant) return def.variants[variant]?.price ?? def.base;
+  return def.base;
+};
+
+// Get the full display name (e.g., "US Stocks · Level 2 & 3" or "CME Futures Package").
+const getPlanLabel = (planId, variant) => {
+  const def = PLAN_DEFS[planId];
+  if (!def) return '';
+  if (def.variants && variant) {
+    const v = def.variants[variant];
+    return v ? `${def.name} · ${v.suffix}` : def.name;
+  }
+  return def.name;
+};
+
+const ANNUAL_DISCOUNT = 0.16;  // 16% off — matches gocharting.com
 
 const STEPS = [
   { id: 'plan', label: 'Plan' },
@@ -1895,6 +1968,17 @@ const US_STATES = [
 
 const SUBMIT_DELAY_MS = 700;
 const OTP_TEST_INVALID_CODE = '000000';
+
+// Step 2 field labels. Functions because two depend on whether US is selected.
+const FIELD_LABELS = {
+  firstName: () => 'First Name',
+  lastName:  () => 'Last Name',
+  phone:     () => 'Phone',
+  address1:  () => 'Address Line 1',
+  city:      () => 'City',
+  state:     (isUS) => isUS ? 'State' : 'State / Province',
+  zip:       (isUS) => isUS ? 'ZIP Code' : 'Postal code',
+};
 
 /* ---------- Date helpers ---------- */
 function fmtShortDate(d) {
@@ -1980,18 +2064,7 @@ function PhonePrefixSelect({ country, onCountryChange }) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef(null);
   const current = COUNTRY_BY_CODE[country] || COUNTRY_BY_CODE['US'];
-
-  useEffect(() => {
-    if (!open) return;
-    const onDocClick = (e) => { if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false); };
-    const onKey = (e) => { if (e.key === 'Escape') setOpen(false); };
-    document.addEventListener('mousedown', onDocClick);
-    document.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('mousedown', onDocClick);
-      document.removeEventListener('keydown', onKey);
-    };
-  }, [open]);
+  useClickOutside(wrapRef, () => setOpen(false), open);
 
   return (
     <div className="gc-phone-prefix-wrap" ref={wrapRef}>
@@ -2027,18 +2100,7 @@ function CountryFieldSelect({ country, onCountryChange }) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef(null);
   const current = COUNTRY_BY_CODE[country] || COUNTRY_BY_CODE['US'];
-
-  useEffect(() => {
-    if (!open) return;
-    const onDocClick = (e) => { if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false); };
-    const onKey = (e) => { if (e.key === 'Escape') setOpen(false); };
-    document.addEventListener('mousedown', onDocClick);
-    document.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('mousedown', onDocClick);
-      document.removeEventListener('keydown', onKey);
-    };
-  }, [open]);
+  useClickOutside(wrapRef, () => setOpen(false), open);
 
   return (
     <div className="gc-country-field-wrap" ref={wrapRef}>
@@ -2069,25 +2131,12 @@ function CountryFieldSelect({ country, onCountryChange }) {
   );
 }
 
-/* ---------- Country selector ---------- */
+/* ---------- Country selector (top nav) ---------- */
 function CountrySelector({ country, onChange }) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef(null);
   const current = COUNTRIES.find(c => c.code === country) || COUNTRIES[0];
-
-  useEffect(() => {
-    if (!open) return;
-    const onDocClick = (e) => {
-      if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false);
-    };
-    const onKey = (e) => { if (e.key === 'Escape') setOpen(false); };
-    document.addEventListener('mousedown', onDocClick);
-    document.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('mousedown', onDocClick);
-      document.removeEventListener('keydown', onKey);
-    };
-  }, [open]);
+  useClickOutside(wrapRef, () => setOpen(false), open);
 
   return (
     <div className="gc-country-wrap" ref={wrapRef}>
@@ -2204,21 +2253,27 @@ function Timeline({ stepIndex }) {
 function OrderSummary({ selection }) {
   const { primary, stocksLevel, bundle, annual } = selection;
 
-  // Build a line-item view of the order (Vercel "value-as-line-item" pattern)
+  // Build a line-item view of the order (Vercel "value-as-line-item" pattern).
+  // The data-driven approach makes it trivial to add new plans/add-ons later.
   const lineItems = useMemo(() => {
-    const items = [];
-    if (primary === PLAN_FUTURES) {
-      items.push({ name: 'CME Futures Package', price: PRICES[PLAN_FUTURES] });
-      if (bundle) items.push({ name: stocksLevel === STOCKS_L23 ? 'US Stocks · Level 2 & 3' : 'US Stocks · Level 1', price: PRICES[PLAN_STOCKS][stocksLevel], addon: true });
-    } else if (primary === PLAN_STOCKS) {
-      items.push({ name: stocksLevel === STOCKS_L23 ? 'US Stocks · Level 2 & 3' : 'US Stocks · Level 1', price: PRICES[PLAN_STOCKS][stocksLevel] });
-      if (bundle) items.push({ name: 'CME Futures Package', price: PRICES[PLAN_FUTURES], addon: true });
+    if (!primary) return [];
+    const items = [{
+      name: getPlanLabel(primary, primary === PLAN_STOCKS ? stocksLevel : null),
+      price: getPlanPrice(primary, primary === PLAN_STOCKS ? stocksLevel : null),
+    }];
+    if (bundle) {
+      const otherPlan = primary === PLAN_FUTURES ? PLAN_STOCKS : PLAN_FUTURES;
+      items.push({
+        name: getPlanLabel(otherPlan, otherPlan === PLAN_STOCKS ? stocksLevel : null),
+        price: getPlanPrice(otherPlan, otherPlan === PLAN_STOCKS ? stocksLevel : null),
+        addon: true,
+      });
     }
     return items;
   }, [primary, stocksLevel, bundle]);
 
   const subtotal = lineItems.reduce((sum, item) => sum + item.price, 0);
-  const annualDiscount = annual ? subtotal * 0.16 : 0;
+  const annualDiscount = annual ? subtotal * ANNUAL_DISCOUNT : 0;
   const monthly = Math.round((subtotal - annualDiscount) * 100) / 100;
 
   // Included items — features per plan, verbatim from gocharting.com/pricing
@@ -2320,18 +2375,12 @@ function OrderSummary({ selection }) {
 function StepPlan({ selection, setSelection, onNext }) {
   const { primary, stocksLevel, bundle, annual } = selection;
   const canContinue = !!primary;
-  const [submitting, setSubmitting] = useState(false);
+  const [submitting, handleContinue] = useSimulatedSubmit(() => canContinue && onNext());
 
   const pickPrimary = (p) => setSelection(s => ({ ...s, primary: p }));
   const setStocksLevel = (v) => setSelection(s => ({ ...s, stocksLevel: v }));
   const toggleBundle = () => setSelection(s => ({ ...s, bundle: !s.bundle }));
   const toggleAnnual = () => setSelection(s => ({ ...s, annual: !s.annual }));
-
-  const handleContinue = () => {
-    if (!canContinue || submitting) return;
-    setSubmitting(true);
-    setTimeout(() => { setSubmitting(false); onNext(); }, SUBMIT_DELAY_MS);
-  };
 
   const futuresSelected = primary === PLAN_FUTURES;
   const stocksSelected = primary === PLAN_STOCKS;
@@ -2342,8 +2391,8 @@ function StepPlan({ selection, setSelection, onNext }) {
     ? 'Bundle real-time NASDAQ & NYSE data with your CME Futures Package.'
     : 'Bundle real-time CME exchange data with your US Stocks plan.';
   const otherMarketPrice = futuresSelected
-    ? PRICES[PLAN_STOCKS][stocksLevel]
-    : PRICES[PLAN_FUTURES];
+    ? getPlanPrice(PLAN_STOCKS, stocksLevel)
+    : getPlanPrice(PLAN_FUTURES);
 
   return (
     <div className="gc-step-content">
@@ -2496,24 +2545,35 @@ function StepPlan({ selection, setSelection, onNext }) {
 function StepVerify({ form, setForm, onNext, onBack }) {
   const [showCriteria, setShowCriteria] = useState(false);
   const [showErrors, setShowErrors] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
   const [addendumOpen, setAddendumOpen] = useState(false);
   const firstNameRef = useRef(null);
 
   useEffect(() => { firstNameRef.current?.focus(); }, []);
 
   const isUS = form.country === 'US';
-  const requiredFields = ['firstName', 'lastName', 'phone', 'address1', 'city', 'state', 'zip'];
   const phoneOK = isPhoneComplete(form.phone);
   const zipOK = isUS
     ? /^\d{5}(-\d{4})?$/.test((form.zip || '').trim())
     : !!(form.zip || '').trim();
-  const allFilled = requiredFields.every(f => {
-    if (f === 'phone') return phoneOK;
-    if (f === 'zip') return zipOK;
-    return !!(form[f] || '').trim();
-  });
-  const canContinue = allFilled && form.nonProfessional;
+
+  // Single validation table — drives missing-field detection, error display, and the inline ✓ marks
+  const fieldStatus = useMemo(() => ({
+    firstName: !!(form.firstName || '').trim(),
+    lastName:  !!(form.lastName  || '').trim(),
+    phone:     phoneOK,
+    address1:  !!(form.address1  || '').trim(),
+    city:      !!(form.city      || '').trim(),
+    state:     !!(form.state     || '').trim(),
+    zip:       zipOK,
+  }), [form, phoneOK, zipOK]);
+
+  const requiredFields = Object.keys(fieldStatus);
+  const allFilled = requiredFields.every(f => fieldStatus[f]);
+  const missingFields = requiredFields.filter(f => !fieldStatus[f]);
+  const missingAck = !form.nonProfessional;
+  const canContinue = allFilled && !missingAck;
+  const fieldValid = (k) => fieldStatus[k];
+  const fieldError = (k) => showErrors && !fieldStatus[k];
 
   const onField = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
   const onPhone = (e) => setForm(f => ({ ...f, phone: formatPhone(e.target.value) }));
@@ -2524,46 +2584,19 @@ function StepVerify({ form, setForm, onNext, onBack }) {
     setForm(f => ({ ...f, zip: cleaned }));
   };
 
-  const FIELD_LABELS = {
-    firstName: 'First Name', lastName: 'Last Name', phone: 'Phone',
-    address1: 'Address Line 1', city: 'City', state: isUS ? 'State' : 'State / Province',
-    zip: isUS ? 'ZIP Code' : 'Postal code',
-  };
-  const missingFields = requiredFields.filter(f => {
-    if (f === 'phone') return !phoneOK;
-    if (f === 'zip') return !zipOK;
-    return !(form[f] || '').trim();
-  });
-  const missingAck = !form.nonProfessional;
+  const fieldLabel = (k) => FIELD_LABELS[k]?.(isUS) ?? k;
 
+  const [submitting, submitForm] = useSimulatedSubmit(onNext);
   const handleContinue = () => {
-    if (submitting) return;
-    if (!canContinue) {
-      setShowErrors(true);
-      // Scroll the first missing thing into view
-      requestAnimationFrame(() => {
-        const target = missingFields.length > 0
-          ? document.getElementById(missingFields[0])
-          : document.querySelector('.gc-ack-row');
-        target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        if (missingFields.length > 0) target?.focus?.();
-      });
-      return;
-    }
-    setSubmitting(true);
-    setTimeout(() => { setSubmitting(false); onNext(); }, SUBMIT_DELAY_MS);
-  };
-
-  const fieldError = (k) => {
-    if (!showErrors) return false;
-    if (k === 'phone') return !phoneOK;
-    if (k === 'zip') return !zipOK;
-    return !(form[k] || '').trim();
-  };
-  const fieldValid = (k) => {
-    if (k === 'phone') return phoneOK;
-    if (k === 'zip') return zipOK;
-    return !!(form[k] || '').trim();
+    if (canContinue) { submitForm(); return; }
+    setShowErrors(true);
+    requestAnimationFrame(() => {
+      const target = missingFields.length > 0
+        ? document.getElementById(missingFields[0])
+        : document.querySelector('.gc-ack-row');
+      target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (missingFields.length > 0) target?.focus?.();
+    });
   };
 
   return (
@@ -2760,10 +2793,10 @@ function StepVerify({ form, setForm, onNext, onBack }) {
           <IconAlert size={14} />
           <span>
             {missingFields.length > 0 && missingAck && (
-              <>Missing: {missingFields.map(f => FIELD_LABELS[f]).join(', ')} · plus subscriber-status acknowledgment.</>
+              <>Missing: {missingFields.map(fieldLabel).join(', ')} · plus subscriber-status acknowledgment.</>
             )}
             {missingFields.length > 0 && !missingAck && (
-              <>Missing: {missingFields.map(f => FIELD_LABELS[f]).join(', ')}.</>
+              <>Missing: {missingFields.map(fieldLabel).join(', ')}.</>
             )}
             {missingFields.length === 0 && missingAck && (
               <>Please check the <strong>Non-professional subscriber</strong> acknowledgment below to continue.</>
@@ -2852,15 +2885,10 @@ function StepConfirm({ form, setForm, onNext, onBack }) {
 }
 
 function PhoneSubStep({ form, setForm, phoneOK, canSend, onSend, onBack }) {
-  const [submitting, setSubmitting] = useState(false);
   const phoneRef = useRef(null);
   useEffect(() => { phoneRef.current?.focus(); }, []);
   const onPhone = (e) => setForm(f => ({ ...f, phone: formatPhone(e.target.value) }));
-  const handleSend = () => {
-    if (!canSend || submitting) return;
-    setSubmitting(true);
-    setTimeout(() => { setSubmitting(false); onSend(); }, SUBMIT_DELAY_MS);
-  };
+  const [submitting, handleSend] = useSimulatedSubmit(() => canSend && onSend());
 
   return (
     <>
@@ -3059,7 +3087,6 @@ function OtpSubStep({ onComplete, onBackToPhone }) {
 
 /* ---------- Step 4: Trial activated ---------- */
 function StepTrial({ onOpenApp, onReset, monthlyPrice, planName }) {
-  const [opening, setOpening] = useState(false);
   const today = useMemo(() => new Date(), []);
   const dates = useMemo(() => ({
     today,
@@ -3067,12 +3094,7 @@ function StepTrial({ onOpenApp, onReset, monthlyPrice, planName }) {
     day8: addDays(today, 8),
     day22: addDays(today, 22),
   }), [today]);
-
-  const handleOpen = () => {
-    if (opening) return;
-    setOpening(true);
-    setTimeout(() => onOpenApp(), 900);
-  };
+  const [opening, handleOpen] = useSimulatedSubmit(onOpenApp, 900);
 
   return (
     <div className="gc-step-content">
@@ -3215,31 +3237,30 @@ function App() {
     retentionAck: false,
   });
 
+  // Single source of truth — composes the same getPlanPrice helpers
+  // that OrderSummary uses. No duplicated pricing logic.
   const monthlyPrice = useMemo(() => {
     const { primary, stocksLevel, bundle, annual } = selection;
-    let total = 0;
-    if (primary === PLAN_FUTURES) {
-      total += PRICES[PLAN_FUTURES];
-      if (bundle) total += PRICES[PLAN_STOCKS][stocksLevel];
-    } else if (primary === PLAN_STOCKS) {
-      total += PRICES[PLAN_STOCKS][stocksLevel];
-      if (bundle) total += PRICES[PLAN_FUTURES];
+    if (!primary) return 0;
+    const primaryVariant = primary === PLAN_STOCKS ? stocksLevel : null;
+    let total = getPlanPrice(primary, primaryVariant);
+    if (bundle) {
+      const other = primary === PLAN_FUTURES ? PLAN_STOCKS : PLAN_FUTURES;
+      const otherVariant = other === PLAN_STOCKS ? stocksLevel : null;
+      total += getPlanPrice(other, otherVariant);
     }
-    // Annual: 16% off the monthly equivalent
-    if (annual) total = total * 0.84;
+    if (annual) total *= (1 - ANNUAL_DISCOUNT);
     return Math.round(total * 100) / 100;
   }, [selection]);
 
   const planName = useMemo(() => {
     const { primary, stocksLevel, bundle } = selection;
-    const stocksLabel = stocksLevel === STOCKS_L23 ? 'US Stocks · Level 2 & 3' : 'US Stocks · Level 1';
-    if (primary === PLAN_FUTURES) {
-      return bundle ? `CME Futures + ${stocksLabel}` : 'CME Futures Package';
-    }
-    if (primary === PLAN_STOCKS) {
-      return bundle ? `${stocksLabel} + CME Futures` : stocksLabel;
-    }
-    return 'GoCharting Trial';
+    if (!primary) return 'GoCharting Trial';
+    const primaryLabel = getPlanLabel(primary, primary === PLAN_STOCKS ? stocksLevel : null);
+    if (!bundle) return primaryLabel;
+    const otherPlan = primary === PLAN_FUTURES ? PLAN_STOCKS : PLAN_FUTURES;
+    const otherLabel = getPlanLabel(otherPlan, otherPlan === PLAN_STOCKS ? stocksLevel : null);
+    return `${primaryLabel} + ${otherLabel}`;
   }, [selection]);
 
   const next = () => setStep(s => Math.min(s + 1, 3));
