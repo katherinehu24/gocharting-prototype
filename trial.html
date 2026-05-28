@@ -168,7 +168,10 @@ a:hover { color: var(--gc-accent-hover); text-decoration: underline; }
   display: flex; align-items: center; gap: 8px;
   font-size: 16px; font-weight: 700; color: var(--gc-text-primary);
   letter-spacing: -0.01em;
+  text-decoration: none;
+  transition: opacity var(--gc-dur-fast) var(--gc-ease);
 }
+.gc-logo:hover { opacity: 0.85; text-decoration: none; color: var(--gc-text-primary); }
 .gc-logo-mark {
   width: 28px; height: 28px;
   background: var(--gc-gradient-upgrade);
@@ -1715,14 +1718,14 @@ function isPhoneComplete(formatted) {
 function TopNav({ country, onCountryChange }) {
   return (
     <div className="gc-topnav">
-      <div className="gc-logo">
+      <a href="index.html" className="gc-logo" aria-label="GoCharting home">
         <IconLogo size={28} />
         <span>GoCharting</span>
-      </div>
+      </a>
       <div className="gc-topnav-right">
         <span className="gc-secure-badge"><IconLock size={11} /> <span className="gc-mono">Secure checkout</span></span>
         <CountrySelector country={country} onChange={onCountryChange} />
-        <a href="#" className="gc-help-link" onClick={(e) => e.preventDefault()}>Need help?</a>
+        <a href="pricing.html" className="gc-help-link">Back to pricing</a>
       </div>
     </div>
   );
