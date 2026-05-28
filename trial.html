@@ -1564,14 +1564,15 @@ a:hover { color: var(--gc-accent-hover); text-decoration: underline; }
 const { useState, useEffect, useRef, useCallback, useMemo } = React;
 
 /* ---------- Constants & copy ---------- */
-const PLAN_FUTURES = 'futures';
-const PLAN_CRYPTO = 'crypto';
-const VARIANT_PREMIUM = 'premium';
-const VARIANT_BUNDLE = 'bundle';
+// Plan identifiers — match the product names on gocharting.com/pricing
+const PLAN_FUTURES = 'futures';      // CME Futures Package
+const PLAN_STOCKS = 'stocks';        // US Stocks (Level 1 or Level 2 & 3)
+const STOCKS_L1 = 'L1';
+const STOCKS_L23 = 'L23';
 
 const PRICES = {
-  [PLAN_FUTURES]: { [VARIANT_PREMIUM]: 35, [VARIANT_BUNDLE]: 40 },
-  [PLAN_CRYPTO]: { default: 35 },
+  [PLAN_FUTURES]: 35,                              // CME Futures Package — $35/mo
+  [PLAN_STOCKS]: { [STOCKS_L1]: 35, [STOCKS_L23]: 49 },  // US Stocks — $35 (L1) or $49 (L2&3)
 };
 
 const STEPS = [
@@ -1942,42 +1943,45 @@ function Timeline({ stepIndex }) {
 
 /* ---------- Order Summary side panel ---------- */
 function OrderSummary({ selection }) {
-  const { futures, crypto, futuresVariant } = selection;
+  const { futures, stocks, stocksLevel } = selection;
 
   const planName = useMemo(() => {
-    if (futures && crypto) return 'CME + Crypto/Forex bundle';
-    if (futures) return futuresVariant === VARIANT_BUNDLE ? 'CME Group Bundle Plan' : 'CME Premium Plan';
-    if (crypto) return 'Crypto / Forex Premium';
+    const stocksLabel = stocksLevel === STOCKS_L23 ? 'US Stocks (Level 2 & 3)' : 'US Stocks (Level 1)';
+    if (futures && stocks) return `CME Futures + ${stocksLabel}`;
+    if (futures) return 'CME Futures Package';
+    if (stocks) return stocksLabel;
     return 'No plan selected';
-  }, [futures, crypto, futuresVariant]);
+  }, [futures, stocks, stocksLevel]);
 
   const monthly = useMemo(() => {
     let total = 0;
-    if (futures) total += PRICES[PLAN_FUTURES][futuresVariant];
-    if (crypto) total += PRICES[PLAN_CRYPTO].default;
+    if (futures) total += PRICES[PLAN_FUTURES];
+    if (stocks) total += PRICES[PLAN_STOCKS][stocksLevel];
     return total;
-  }, [futures, crypto, futuresVariant]);
+  }, [futures, stocks, stocksLevel]);
 
+  // Included items map verbatim to gocharting.com/pricing product descriptions
   const included = useMemo(() => {
     const out = [];
     if (futures) {
-      if (futuresVariant === VARIANT_BUNDLE) {
-        out.push('Real-time data: CME (/ES, /MES, /NQ, /6B, /6E), CBOT (/YM), NYMEX (/CL, /NG), COMEX (/GC)');
-      } else {
-        out.push('Real-time CME exchange data (/ES, /MES, /NQ, /6B, /6E)');
-      }
-      out.push('Footprint & Imbalance charts');
-      out.push('Volume profile & DOM Pro');
-      out.push('Multibook (consolidated order book)');
+      out.push('Real-time CME exchange data — /ES, /MES, /NQ, /6B, /6E');
+      out.push('Footprint & Imbalance Charts');
+      out.push('Tick-based Market & Volume Profile');
+      out.push('Time & Sales · Level 2/3 DOM');
     }
-    if (crypto) {
-      out.push('Real-time crypto data: Binance, Coinbase, Bitfinex');
-      out.push('FX majors — real-time');
+    if (stocks) {
+      if (stocksLevel === STOCKS_L23) {
+        out.push('Real-time NASDAQ & NYSE data — Level 2 & 3');
+      } else {
+        out.push('Real-time NASDAQ & NYSE data — Level 1');
+      }
+      out.push('Chart Trading · Watchlist Trading');
+      out.push('Power Trades · Time & Sales');
     }
     return out;
-  }, [futures, crypto, futuresVariant]);
+  }, [futures, stocks, stocksLevel]);
 
-  const selectionKey = `${futures}-${crypto}-${futuresVariant}`;
+  const selectionKey = `${futures}-${stocks}-${stocksLevel}`;
 
   return (
     <aside className="gc-summary" aria-label="Order summary">
@@ -2017,11 +2021,8 @@ function OrderSummary({ selection }) {
 
       <div className="gc-trust-strip">
         <div className="gc-trust-row"><IconLock size={14} /> <span><span className="gc-mono">256-bit</span> SSL encryption</span></div>
-        <div className="gc-trust-row"><IconCard size={14} /> <span>Stripe &amp; Razorpay · USDC accepted</span></div>
-        <div className="gc-trust-row">
-          <span className="gc-stars">{[0,1,2,3,4].map(i => <IconStar key={i} size={12} filled={i < 4} />)}</span>
-          <span><span className="gc-mono">4.8 / 5</span> on G2</span>
-        </div>
+        <div className="gc-trust-row"><IconCard size={14} /> <span>Secure payment · USDC accepted</span></div>
+        <div className="gc-trust-row"><IconCheck size={14} /> <span>Cancel anytime · No lock-in contracts</span></div>
       </div>
 
       <a href="#" className="gc-summary-footer-link" onClick={(e) => e.preventDefault()}>
@@ -2033,13 +2034,13 @@ function OrderSummary({ selection }) {
 
 /* ---------- Step 1: Plan Select ---------- */
 function StepPlan({ selection, setSelection, onNext }) {
-  const { futures, crypto, futuresVariant } = selection;
-  const canContinue = futures || crypto;
+  const { futures, stocks, stocksLevel } = selection;
+  const canContinue = futures || stocks;
   const [submitting, setSubmitting] = useState(false);
 
   const toggleFutures = () => setSelection(s => ({ ...s, futures: !s.futures }));
-  const toggleCrypto = () => setSelection(s => ({ ...s, crypto: !s.crypto }));
-  const setVariant = (v) => setSelection(s => ({ ...s, futures: true, futuresVariant: v }));
+  const toggleStocks = () => setSelection(s => ({ ...s, stocks: !s.stocks }));
+  const setStocksLevel = (v) => setSelection(s => ({ ...s, stocks: true, stocksLevel: v }));
   const handleContinue = () => {
     if (!canContinue || submitting) return;
     setSubmitting(true);
@@ -2055,10 +2056,10 @@ function StepPlan({ selection, setSelection, onNext }) {
         <p className="gc-step-subtitle">No credit card needed.</p>
       </div>
 
-      {/* Futures card */}
+      {/* CME Futures Package card */}
       <div
         className={`gc-plan-card ${futures ? 'selected' : ''}`}
-        onClick={(e) => { if (e.target.closest('.gc-segment')) return; toggleFutures(); }}
+        onClick={toggleFutures}
         role="checkbox"
         aria-checked={futures}
         tabIndex={0}
@@ -2071,70 +2072,62 @@ function StepPlan({ selection, setSelection, onNext }) {
             <IconCheck size={12} />
           </div>
         </div>
-        <div className="gc-plan-name">
-          {futuresVariant === VARIANT_BUNDLE ? 'CME Group Bundle Plan' : 'CME Premium Plan'}
-        </div>
+        <div className="gc-plan-name">CME Futures Package</div>
         <div className="gc-plan-desc">
-          {futuresVariant === VARIANT_BUNDLE
-            ? 'All four CME Group exchanges — CME, CBOT, NYMEX, COMEX. Real-time data across the full futures complex.'
-            : 'Real-time CME futures data for serious traders. Switch to Bundle for all four CME Group exchanges.'}
+          Real-time CME exchange data for futures traders — /ES, /MES, /NQ, /6B, /6E. <span className="gc-mono">$35/month</span>.
         </div>
-
-        <div className={`gc-segmented ${!futures ? 'disabled' : ''}`} role="tablist" onClick={(e) => e.stopPropagation()} aria-disabled={!futures}>
-          <button
-            className={`gc-segment ${futuresVariant === VARIANT_PREMIUM ? 'active' : ''}`}
-            onClick={() => setVariant(VARIANT_PREMIUM)}
-            data-tooltip="CME-only data, single exchange"
-            role="tab"
-            aria-selected={futuresVariant === VARIANT_PREMIUM}
-            disabled={!futures}
-          >
-            CME Premium <span className="gc-mono">($35/mo)</span>
-          </button>
-          <button
-            className={`gc-segment ${futuresVariant === VARIANT_BUNDLE ? 'active' : ''}`}
-            onClick={() => setVariant(VARIANT_BUNDLE)}
-            data-tooltip="All four CME Group exchanges"
-            role="tab"
-            aria-selected={futuresVariant === VARIANT_BUNDLE}
-            disabled={!futures}
-          >
-            CME Group Bundle <span className="gc-mono">($40/mo)</span>
-          </button>
-        </div>
-
       </div>
 
-      {/* Crypto card */}
+      {/* US Stocks card */}
       <div
-        className={`gc-plan-card ${crypto ? 'selected' : ''}`}
-        onClick={toggleCrypto}
+        className={`gc-plan-card ${stocks ? 'selected' : ''}`}
+        onClick={(e) => { if (e.target.closest('.gc-segment')) return; toggleStocks(); }}
         role="checkbox"
-        aria-checked={crypto}
+        aria-checked={stocks}
         tabIndex={0}
-        onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggleCrypto(); } }}
+        onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggleStocks(); } }}
       >
         <span className="gc-plan-check-badge" aria-hidden="true"><IconCheck size={14} /></span>
         <div className="gc-plan-card-header">
-          <span className="gc-badge gc-badge-teal">Forex</span>
-          <div className={`gc-checkbox ${crypto ? 'checked' : ''}`} aria-hidden="true">
+          <span className="gc-badge gc-badge-amber">Stocks</span>
+          <div className={`gc-checkbox ${stocks ? 'checked' : ''}`} aria-hidden="true">
             <IconCheck size={12} />
           </div>
         </div>
-        <div className="gc-plan-name">Crypto / Forex Currency Premium</div>
+        <div className="gc-plan-name">US Stocks</div>
         <div className="gc-plan-desc">
-          Real-time data for major crypto exchanges (Binance, Coinbase, Bitfinex) and FX majors. <span className="gc-mono">$35/month</span>.
+          Real-time NASDAQ &amp; NYSE data. Level 1 quotes by default — upgrade to Level 2 &amp; 3 for full market depth.
+        </div>
+
+        <div className={`gc-segmented ${!stocks ? 'disabled' : ''}`} role="tablist" onClick={(e) => e.stopPropagation()} aria-disabled={!stocks}>
+          <button
+            className={`gc-segment ${stocksLevel === STOCKS_L1 ? 'active' : ''}`}
+            onClick={() => setStocksLevel(STOCKS_L1)}
+            data-tooltip="Top-of-book quotes"
+            role="tab"
+            aria-selected={stocksLevel === STOCKS_L1}
+            disabled={!stocks}
+          >
+            Level 1 <span className="gc-mono">($35/mo)</span>
+          </button>
+          <button
+            className={`gc-segment ${stocksLevel === STOCKS_L23 ? 'active' : ''}`}
+            onClick={() => setStocksLevel(STOCKS_L23)}
+            data-tooltip="Full market depth"
+            role="tab"
+            aria-selected={stocksLevel === STOCKS_L23}
+            disabled={!stocks}
+          >
+            Level 2 &amp; 3 <span className="gc-mono">($49/mo)</span>
+          </button>
         </div>
       </div>
 
       {/* Trust strip */}
       <div className="gc-trust-strip-horizontal">
         <div className="gc-trust-item"><strong className="gc-mono">3M+</strong> traders worldwide</div>
-        <div className="gc-trust-item">
-          <span className="gc-stars">{[0,1,2,3,4].map(i => <IconStar key={i} size={12} filled={i < 4} />)}</span>
-          <span><strong className="gc-mono">4.8 / 5</strong> on G2</span>
-        </div>
         <div className="gc-trust-item"><strong>USDC</strong> crypto payments accepted</div>
+        <div className="gc-trust-item"><strong>16% off</strong> on annual billing</div>
       </div>
 
       <button
@@ -2406,13 +2399,13 @@ function StepVerify({ form, setForm, onNext, onBack }) {
       </div>
 
       <div className="gc-friction-trust">
-        <span><IconLock size={12} /> <span className="gc-mono">256-bit</span> SSL</span>
-        <span><span className="gc-stars">{[0,1,2,3,4].map(i => <IconStar key={i} size={11} filled={i < 4} />)}</span> <span className="gc-mono">4.8/5</span> G2</span>
+        <span><IconLock size={12} /> <span className="gc-mono">256-bit</span> SSL encryption</span>
         <span>Used by <strong className="gc-mono">3M+</strong> traders worldwide</span>
+        <span><IconCheck size={12} /> Cancel anytime · No lock-in</span>
       </div>
 
       <Modal open={addendumOpen} title="CME Market Data Subscriber Addendum" onClose={() => setAddendumOpen(false)}>
-        <p className="gc-modal-p">This Addendum supplements the GoCharting Terms of Service and governs your access to real-time market data licensed from CME Group Inc. and its affiliated exchanges (CME, CBOT, NYMEX, COMEX).</p>
+        <p className="gc-modal-p">This Addendum supplements the GoCharting Terms of Service and governs your access to real-time CME exchange market data licensed from CME Group Inc.</p>
         <h4 className="gc-modal-h">1. Non-professional status</h4>
         <p className="gc-modal-p">You represent that you qualify as a Non-professional Subscriber under CME Group's Market Data Policies. You agree to notify GoCharting within five (5) business days if your status changes.</p>
         <h4 className="gc-modal-h">2. Permitted use</h4>
@@ -2814,9 +2807,9 @@ function App() {
   const [country, setCountry] = useState('US'); // 'US' | 'IN' | 'ROW'
 
   const [selection, setSelection] = useState({
-    futures: true,
-    crypto: false,
-    futuresVariant: VARIANT_PREMIUM,
+    futures: true,           // CME Futures Package selected
+    stocks: false,           // US Stocks selected
+    stocksLevel: STOCKS_L1,  // US Stocks Level 1 by default
   });
 
   const [form, setForm] = useState({
@@ -2835,16 +2828,17 @@ function App() {
 
   const monthlyPrice = useMemo(() => {
     let total = 0;
-    if (selection.futures) total += PRICES[PLAN_FUTURES][selection.futuresVariant];
-    if (selection.crypto) total += PRICES[PLAN_CRYPTO].default;
+    if (selection.futures) total += PRICES[PLAN_FUTURES];
+    if (selection.stocks) total += PRICES[PLAN_STOCKS][selection.stocksLevel];
     return total;
   }, [selection]);
 
   const planName = useMemo(() => {
-    const { futures, crypto, futuresVariant } = selection;
-    if (futures && crypto) return 'CME + Crypto/Forex bundle';
-    if (futures) return futuresVariant === VARIANT_BUNDLE ? 'CME Group Bundle Plan' : 'CME Premium Plan';
-    if (crypto) return 'Crypto / Forex Premium';
+    const { futures, stocks, stocksLevel } = selection;
+    const stocksLabel = stocksLevel === STOCKS_L23 ? 'US Stocks (Level 2 & 3)' : 'US Stocks (Level 1)';
+    if (futures && stocks) return `CME Futures + ${stocksLabel}`;
+    if (futures) return 'CME Futures Package';
+    if (stocks) return stocksLabel;
     return 'GoCharting Trial';
   }, [selection]);
 
@@ -2858,7 +2852,7 @@ function App() {
       city: '', state: '', zip: '', country: 'US',
       nonProfessional: false, smsConsent: false, retentionAck: false,
     });
-    setSelection({ futures: true, crypto: false, futuresVariant: VARIANT_PREMIUM });
+    setSelection({ futures: true, stocks: false, stocksLevel: STOCKS_L1 });
   };
 
   // Scroll to top on step change
