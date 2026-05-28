@@ -418,6 +418,256 @@ a:hover { color: var(--gc-accent-hover); text-decoration: underline; }
   border-color: var(--gc-accent);
   box-shadow: var(--gc-shadow-glow);
 }
+
+/* Plan card grid — side-by-side primary plan picker */
+.gc-plan-card-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+@media (max-width: 700px) { .gc-plan-card-grid { grid-template-columns: 1fr; } }
+.gc-plan-card-grid .gc-plan-card { margin-bottom: 0; }
+
+/* Plan card — radio variant (single-select primary product) */
+.gc-plan-card-radio { padding: 20px; }
+.gc-plan-card-radio .gc-plan-card-header { margin-bottom: 8px; }
+.gc-plan-card-radio .gc-plan-name { font-size: 17px; margin-bottom: 4px; }
+.gc-plan-card-radio .gc-plan-desc { font-size: 12px; margin-bottom: 14px; }
+
+/* Plan price (below card desc) */
+.gc-plan-price {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--gc-text-primary);
+  font-family: var(--gc-font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.gc-plan-price-suffix {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--gc-text-secondary);
+  font-family: var(--gc-font-sans);
+  margin-left: 4px;
+}
+
+/* Radio dot indicator */
+.gc-radio-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--gc-border-strong);
+  background: var(--gc-bg-input);
+  flex-shrink: 0;
+  position: relative;
+  transition: all var(--gc-dur-fast) var(--gc-ease);
+}
+.gc-radio-dot.checked {
+  border-color: var(--gc-accent);
+}
+.gc-radio-dot.checked::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: var(--gc-accent);
+}
+
+/* Section labels (numbered) */
+.gc-section-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gc-text-primary);
+  margin-bottom: 14px;
+  letter-spacing: -0.005em;
+}
+.gc-section-label-spaced { margin-top: 8px; }
+.gc-section-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--gc-accent-soft);
+  color: var(--gc-accent-bright);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--gc-font-mono);
+  flex-shrink: 0;
+}
+.gc-section-optional {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gc-text-tertiary);
+  margin-left: auto;
+  padding: 3px 8px;
+  background: var(--gc-bg-card-dim);
+  border: 1px solid var(--gc-border-subtle);
+  border-radius: var(--gc-radius-pill);
+}
+
+/* Add-on rows */
+.gc-addon-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.gc-addon-row {
+  background: var(--gc-bg-card);
+  border: 1px solid var(--gc-border);
+  border-radius: var(--gc-radius-md);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: all var(--gc-dur-fast) var(--gc-ease);
+}
+.gc-addon-row:hover { border-color: var(--gc-border-strong); }
+.gc-addon-row.checked {
+  border-color: var(--gc-accent);
+  background: var(--gc-accent-soft);
+}
+
+/* iOS-style toggle */
+.gc-addon-toggle {
+  width: 36px;
+  height: 20px;
+  background: var(--gc-bg-input);
+  border: 1px solid var(--gc-border-strong);
+  border-radius: var(--gc-radius-pill);
+  position: relative;
+  flex-shrink: 0;
+  transition: all var(--gc-dur-fast) var(--gc-ease);
+}
+.gc-addon-toggle-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--gc-text-secondary);
+  transition: all var(--gc-dur-fast) var(--gc-ease);
+}
+.gc-addon-toggle.on {
+  background: var(--gc-accent);
+  border-color: var(--gc-accent);
+}
+.gc-addon-toggle.on .gc-addon-toggle-knob {
+  left: 18px;
+  background: white;
+}
+
+.gc-addon-info { flex: 1; min-width: 0; }
+.gc-addon-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gc-text-primary);
+  margin-bottom: 3px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.gc-addon-desc {
+  font-size: 12px;
+  color: var(--gc-text-secondary);
+  line-height: 1.5;
+}
+.gc-addon-tag {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: var(--gc-radius-pill);
+  background: var(--gc-accent-soft);
+  color: var(--gc-accent-bright);
+}
+.gc-addon-tag-save {
+  background: var(--gc-teal-soft);
+  color: var(--gc-teal);
+}
+.gc-addon-price {
+  font-family: var(--gc-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--gc-text-primary);
+  text-align: right;
+  flex-shrink: 0;
+}
+.gc-addon-price-suffix {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--gc-text-secondary);
+  font-family: var(--gc-font-sans);
+  margin-left: 2px;
+}
+
+/* Order summary line items */
+.gc-summary-lineitems {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.gc-summary-li {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  font-size: 13px;
+}
+.gc-summary-li + .gc-summary-li {
+  border-top: 1px solid var(--gc-border-subtle);
+}
+.gc-summary-li-name {
+  color: var(--gc-text-primary);
+  font-weight: 500;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  line-height: 1.4;
+}
+.gc-summary-li.addon .gc-summary-li-name { color: var(--gc-text-secondary); font-weight: 400; }
+.gc-summary-li.discount .gc-summary-li-name { color: var(--gc-teal); font-weight: 500; }
+.gc-summary-li.discount .gc-summary-li-price { color: var(--gc-teal); }
+.gc-summary-li-price {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gc-text-primary);
+  white-space: nowrap;
+}
+.gc-summary-li-addon-tag {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 1px 6px;
+  border-radius: var(--gc-radius-pill);
+  background: var(--gc-accent-soft);
+  color: var(--gc-accent-bright);
+}
+.gc-summary-li-addon-tag.gc-tag-save { background: var(--gc-teal-soft); color: var(--gc-teal); }
+.gc-summary-empty {
+  font-size: 13px;
+  color: var(--gc-text-tertiary);
+  font-style: italic;
+  padding: 12px 0;
+  text-align: center;
+}
 .gc-plan-card-header {
   display: flex;
   align-items: center;
@@ -1952,57 +2202,82 @@ function Timeline({ stepIndex }) {
 
 /* ---------- Order Summary side panel ---------- */
 function OrderSummary({ selection }) {
-  const { futures, stocks, stocksLevel } = selection;
+  const { primary, stocksLevel, bundle, annual } = selection;
 
-  const planName = useMemo(() => {
-    const stocksLabel = stocksLevel === STOCKS_L23 ? 'US Stocks (Level 2 & 3)' : 'US Stocks (Level 1)';
-    if (futures && stocks) return `CME Futures + ${stocksLabel}`;
-    if (futures) return 'CME Futures Package';
-    if (stocks) return stocksLabel;
-    return 'No plan selected';
-  }, [futures, stocks, stocksLevel]);
+  // Build a line-item view of the order (Vercel "value-as-line-item" pattern)
+  const lineItems = useMemo(() => {
+    const items = [];
+    if (primary === PLAN_FUTURES) {
+      items.push({ name: 'CME Futures Package', price: PRICES[PLAN_FUTURES] });
+      if (bundle) items.push({ name: stocksLevel === STOCKS_L23 ? 'US Stocks · Level 2 & 3' : 'US Stocks · Level 1', price: PRICES[PLAN_STOCKS][stocksLevel], addon: true });
+    } else if (primary === PLAN_STOCKS) {
+      items.push({ name: stocksLevel === STOCKS_L23 ? 'US Stocks · Level 2 & 3' : 'US Stocks · Level 1', price: PRICES[PLAN_STOCKS][stocksLevel] });
+      if (bundle) items.push({ name: 'CME Futures Package', price: PRICES[PLAN_FUTURES], addon: true });
+    }
+    return items;
+  }, [primary, stocksLevel, bundle]);
 
-  const monthly = useMemo(() => {
-    let total = 0;
-    if (futures) total += PRICES[PLAN_FUTURES];
-    if (stocks) total += PRICES[PLAN_STOCKS][stocksLevel];
-    return total;
-  }, [futures, stocks, stocksLevel]);
+  const subtotal = lineItems.reduce((sum, item) => sum + item.price, 0);
+  const annualDiscount = annual ? subtotal * 0.16 : 0;
+  const monthly = Math.round((subtotal - annualDiscount) * 100) / 100;
 
-  // Included items map verbatim to gocharting.com/pricing product descriptions
+  // Included items — features per plan, verbatim from gocharting.com/pricing
   const included = useMemo(() => {
     const out = [];
-    if (futures) {
+    const hasFutures = primary === PLAN_FUTURES || (primary === PLAN_STOCKS && bundle);
+    const hasStocks = primary === PLAN_STOCKS || (primary === PLAN_FUTURES && bundle);
+    if (hasFutures) {
       out.push('Real-time CME exchange data — /ES, /MES, /NQ, /6B, /6E');
-      out.push('Footprint & Imbalance Charts');
-      out.push('Tick-based Market & Volume Profile');
-      out.push('Time & Sales · Level 2/3 DOM');
     }
-    if (stocks) {
-      if (stocksLevel === STOCKS_L23) {
-        out.push('Real-time NASDAQ & NYSE data — Level 2 & 3');
-      } else {
-        out.push('Real-time NASDAQ & NYSE data — Level 1');
-      }
-      out.push('Chart Trading · Watchlist Trading');
-      out.push('Power Trades · Time & Sales');
+    if (hasStocks) {
+      out.push(stocksLevel === STOCKS_L23
+        ? 'Real-time NASDAQ & NYSE — Level 2 & 3 depth'
+        : 'Real-time NASDAQ & NYSE — Level 1 quotes');
     }
+    out.push('Footprint & Imbalance Charts');
+    out.push('Tick-based Market & Volume Profile');
+    out.push('Power Trades · Time & Sales');
     return out;
-  }, [futures, stocks, stocksLevel]);
+  }, [primary, stocksLevel, bundle]);
 
-  const selectionKey = `${futures}-${stocks}-${stocksLevel}`;
+  const selectionKey = `${primary}-${stocksLevel}-${bundle}-${annual}`;
 
   return (
     <aside className="gc-summary" aria-label="Order summary">
-      <div className="gc-eyebrow gc-summary-eyebrow">Your plan</div>
+      <div className="gc-eyebrow gc-summary-eyebrow">Your order</div>
       <div className="gc-summary-dynamic" key={selectionKey}>
-        <div className="gc-summary-name">{planName}</div>
+
+        {/* Line items — Vercel value-as-line-item pattern */}
+        <div className="gc-summary-lineitems">
+          {lineItems.length === 0 && (
+            <div className="gc-summary-empty">Select a plan to see your order.</div>
+          )}
+          {lineItems.map((item, i) => (
+            <div key={i} className={`gc-summary-li ${item.addon ? 'addon' : ''}`}>
+              <div className="gc-summary-li-name">
+                {item.addon && <span className="gc-summary-li-addon-tag">Add-on</span>}
+                {item.name}
+              </div>
+              <div className="gc-summary-li-price gc-mono">${item.price}/mo</div>
+            </div>
+          ))}
+          {annual && lineItems.length > 0 && (
+            <div className="gc-summary-li discount">
+              <div className="gc-summary-li-name">
+                <span className="gc-summary-li-addon-tag gc-tag-save">Save</span>
+                Annual billing (16% off)
+              </div>
+              <div className="gc-summary-li-price gc-mono">−${annualDiscount.toFixed(2)}/mo</div>
+            </div>
+          )}
+        </div>
 
         <div className="gc-summary-price-block">
           <div className="gc-summary-trial-label">Free for 7 days</div>
           <div className="gc-summary-price-big">$0.00</div>
           <div className="gc-summary-renewal">
-            then <span style={{ color: 'var(--gc-text-primary)' }}>${monthly.toFixed(2)}/month</span> after Day 7
+            then <span style={{ color: 'var(--gc-text-primary)' }}>${monthly.toFixed(2)}/month</span>
+            {annual ? ' (billed yearly)' : ''} after Day 7
           </div>
         </div>
 
@@ -2041,94 +2316,161 @@ function OrderSummary({ selection }) {
   );
 }
 
-/* ---------- Step 1: Plan Select ---------- */
+/* ---------- Step 1: Plan Select (with bolt-on layer) ---------- */
 function StepPlan({ selection, setSelection, onNext }) {
-  const { futures, stocks, stocksLevel } = selection;
-  const canContinue = futures || stocks;
+  const { primary, stocksLevel, bundle, annual } = selection;
+  const canContinue = !!primary;
   const [submitting, setSubmitting] = useState(false);
 
-  const toggleFutures = () => setSelection(s => ({ ...s, futures: !s.futures }));
-  const toggleStocks = () => setSelection(s => ({ ...s, stocks: !s.stocks }));
-  const setStocksLevel = (v) => setSelection(s => ({ ...s, stocks: true, stocksLevel: v }));
+  const pickPrimary = (p) => setSelection(s => ({ ...s, primary: p }));
+  const setStocksLevel = (v) => setSelection(s => ({ ...s, stocksLevel: v }));
+  const toggleBundle = () => setSelection(s => ({ ...s, bundle: !s.bundle }));
+  const toggleAnnual = () => setSelection(s => ({ ...s, annual: !s.annual }));
+
   const handleContinue = () => {
     if (!canContinue || submitting) return;
     setSubmitting(true);
     setTimeout(() => { setSubmitting(false); onNext(); }, SUBMIT_DELAY_MS);
   };
 
+  const futuresSelected = primary === PLAN_FUTURES;
+  const stocksSelected = primary === PLAN_STOCKS;
+
+  // Bolt-on definitions — what's available depends on which primary is selected
+  const otherMarketLabel = futuresSelected ? 'Add US Stocks' : 'Add CME Futures Package';
+  const otherMarketDesc = futuresSelected
+    ? 'Bundle real-time NASDAQ & NYSE data with your CME Futures Package.'
+    : 'Bundle real-time CME exchange data with your US Stocks plan.';
+  const otherMarketPrice = futuresSelected
+    ? PRICES[PLAN_STOCKS][stocksLevel]
+    : PRICES[PLAN_FUTURES];
+
   return (
     <div className="gc-step-content">
       <Timeline stepIndex={0} />
       <div className="gc-step-header">
-        <div className="gc-eyebrow-amber gc-step-eyebrow">Step 1 of 4 · Choose your plan</div>
-        <h2 className="gc-step-h2">Free 7-Day Trial — pick your data.</h2>
-        <p className="gc-step-subtitle">No credit card needed.</p>
+        <div className="gc-eyebrow-amber gc-step-eyebrow">Step 1 of 4 · Build your plan</div>
+        <h2 className="gc-step-h2">Free 7-Day Trial — pick your market.</h2>
+        <p className="gc-step-subtitle">No credit card needed. Add bolt-ons below — change them any time.</p>
       </div>
 
-      {/* CME Futures Package card */}
-      <div
-        className={`gc-plan-card ${futures ? 'selected' : ''}`}
-        onClick={toggleFutures}
-        role="checkbox"
-        aria-checked={futures}
-        tabIndex={0}
-        onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggleFutures(); } }}
-      >
-        <span className="gc-plan-check-badge" aria-hidden="true"><IconCheck size={14} /></span>
-        <div className="gc-plan-card-header">
-          <span className="gc-badge gc-badge-amber">Futures</span>
-          <div className={`gc-checkbox ${futures ? 'checked' : ''}`} aria-hidden="true">
-            <IconCheck size={12} />
+      {/* ─── Section 1: Pick your primary market ─── */}
+      <div className="gc-section-label">
+        <span className="gc-section-num">1</span> Pick your market
+      </div>
+
+      <div className="gc-plan-card-grid">
+        {/* CME Futures Package card (radio-style) */}
+        <div
+          className={`gc-plan-card gc-plan-card-radio ${futuresSelected ? 'selected' : ''}`}
+          onClick={() => pickPrimary(PLAN_FUTURES)}
+          role="radio"
+          aria-checked={futuresSelected}
+          tabIndex={0}
+          onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); pickPrimary(PLAN_FUTURES); } }}
+        >
+          <span className="gc-plan-check-badge" aria-hidden="true"><IconCheck size={14} /></span>
+          <div className="gc-plan-card-header">
+            <span className="gc-badge gc-badge-amber">Futures</span>
+            <div className={`gc-radio-dot ${futuresSelected ? 'checked' : ''}`} aria-hidden="true"></div>
+          </div>
+          <div className="gc-plan-name">CME Futures Package</div>
+          <div className="gc-plan-desc">
+            Real-time CME exchange data — /ES, /MES, /NQ, /6B, /6E.
+          </div>
+          <div className="gc-plan-price">
+            <span className="gc-mono">$35</span><span className="gc-plan-price-suffix">/month</span>
           </div>
         </div>
-        <div className="gc-plan-name">CME Futures Package</div>
-        <div className="gc-plan-desc">
-          Real-time CME exchange data for futures traders — /ES, /MES, /NQ, /6B, /6E. <span className="gc-mono">$35/month</span>.
+
+        {/* US Stocks card (radio-style) */}
+        <div
+          className={`gc-plan-card gc-plan-card-radio ${stocksSelected ? 'selected' : ''}`}
+          onClick={() => pickPrimary(PLAN_STOCKS)}
+          role="radio"
+          aria-checked={stocksSelected}
+          tabIndex={0}
+          onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); pickPrimary(PLAN_STOCKS); } }}
+        >
+          <span className="gc-plan-check-badge" aria-hidden="true"><IconCheck size={14} /></span>
+          <div className="gc-plan-card-header">
+            <span className="gc-badge gc-badge-amber">Stocks</span>
+            <div className={`gc-radio-dot ${stocksSelected ? 'checked' : ''}`} aria-hidden="true"></div>
+          </div>
+          <div className="gc-plan-name">US Stocks</div>
+          <div className="gc-plan-desc">
+            Real-time NASDAQ &amp; NYSE Level 1 quotes.
+          </div>
+          <div className="gc-plan-price">
+            <span className="gc-mono">$35</span><span className="gc-plan-price-suffix">/month</span>
+          </div>
         </div>
       </div>
 
-      {/* US Stocks card */}
-      <div
-        className={`gc-plan-card ${stocks ? 'selected' : ''}`}
-        onClick={(e) => { if (e.target.closest('.gc-segment')) return; toggleStocks(); }}
-        role="checkbox"
-        aria-checked={stocks}
-        tabIndex={0}
-        onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggleStocks(); } }}
-      >
-        <span className="gc-plan-check-badge" aria-hidden="true"><IconCheck size={14} /></span>
-        <div className="gc-plan-card-header">
-          <span className="gc-badge gc-badge-amber">Stocks</span>
-          <div className={`gc-checkbox ${stocks ? 'checked' : ''}`} aria-hidden="true">
-            <IconCheck size={12} />
+      {/* ─── Section 2: Bolt-ons & savings ─── */}
+      <div className="gc-section-label gc-section-label-spaced">
+        <span className="gc-section-num">2</span> Add bolt-ons &amp; savings <span className="gc-section-optional">Optional</span>
+      </div>
+
+      <div className="gc-addon-list">
+
+        {/* L2/L3 depth — only relevant for Stocks primary */}
+        {stocksSelected && (
+          <div
+            className={`gc-addon-row ${stocksLevel === STOCKS_L23 ? 'checked' : ''}`}
+            onClick={() => setStocksLevel(stocksLevel === STOCKS_L23 ? STOCKS_L1 : STOCKS_L23)}
+            role="checkbox"
+            aria-checked={stocksLevel === STOCKS_L23}
+            tabIndex={0}
+            onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); setStocksLevel(stocksLevel === STOCKS_L23 ? STOCKS_L1 : STOCKS_L23); } }}
+          >
+            <div className={`gc-addon-toggle ${stocksLevel === STOCKS_L23 ? 'on' : ''}`} aria-hidden="true"><span className="gc-addon-toggle-knob"></span></div>
+            <div className="gc-addon-info">
+              <div className="gc-addon-name">Upgrade to Level 2 &amp; 3 depth</div>
+              <div className="gc-addon-desc">Full NASDAQ &amp; NYSE market depth — see every bid and offer beyond top-of-book.</div>
+            </div>
+            <div className="gc-addon-price">
+              <span className="gc-mono">+$14</span><span className="gc-addon-price-suffix">/mo</span>
+            </div>
+          </div>
+        )}
+
+        {/* Bundle the other market */}
+        <div
+          className={`gc-addon-row ${bundle ? 'checked' : ''}`}
+          onClick={toggleBundle}
+          role="checkbox"
+          aria-checked={bundle}
+          tabIndex={0}
+          onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggleBundle(); } }}
+        >
+          <div className={`gc-addon-toggle ${bundle ? 'on' : ''}`} aria-hidden="true"><span className="gc-addon-toggle-knob"></span></div>
+          <div className="gc-addon-info">
+            <div className="gc-addon-name">{otherMarketLabel} <span className="gc-addon-tag">Bundle</span></div>
+            <div className="gc-addon-desc">{otherMarketDesc}</div>
+          </div>
+          <div className="gc-addon-price">
+            <span className="gc-mono">+${otherMarketPrice}</span><span className="gc-addon-price-suffix">/mo</span>
           </div>
         </div>
-        <div className="gc-plan-name">US Stocks</div>
-        <div className="gc-plan-desc">
-          Real-time NASDAQ &amp; NYSE data. Level 1 quotes by default — upgrade to Level 2 &amp; 3 for full market depth.
-        </div>
 
-        <div className={`gc-segmented ${!stocks ? 'disabled' : ''}`} role="tablist" onClick={(e) => e.stopPropagation()} aria-disabled={!stocks}>
-          <button
-            className={`gc-segment ${stocksLevel === STOCKS_L1 ? 'active' : ''}`}
-            onClick={() => setStocksLevel(STOCKS_L1)}
-            data-tooltip="Top-of-book quotes"
-            role="tab"
-            aria-selected={stocksLevel === STOCKS_L1}
-            disabled={!stocks}
-          >
-            Level 1 <span className="gc-mono">($35/mo)</span>
-          </button>
-          <button
-            className={`gc-segment ${stocksLevel === STOCKS_L23 ? 'active' : ''}`}
-            onClick={() => setStocksLevel(STOCKS_L23)}
-            data-tooltip="Full market depth"
-            role="tab"
-            aria-selected={stocksLevel === STOCKS_L23}
-            disabled={!stocks}
-          >
-            Level 2 &amp; 3 <span className="gc-mono">($49/mo)</span>
-          </button>
+        {/* Annual billing */}
+        <div
+          className={`gc-addon-row ${annual ? 'checked' : ''}`}
+          onClick={toggleAnnual}
+          role="checkbox"
+          aria-checked={annual}
+          tabIndex={0}
+          onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggleAnnual(); } }}
+        >
+          <div className={`gc-addon-toggle ${annual ? 'on' : ''}`} aria-hidden="true"><span className="gc-addon-toggle-knob"></span></div>
+          <div className="gc-addon-info">
+            <div className="gc-addon-name">Switch to annual billing <span className="gc-addon-tag gc-addon-tag-save">Save 16%</span></div>
+            <div className="gc-addon-desc">Billed once per year — same plan, lower monthly equivalent. Cancel anytime.</div>
+          </div>
+          <div className="gc-addon-price">
+            <span className="gc-mono">−16%</span>
+          </div>
         </div>
       </div>
 
@@ -2136,7 +2478,7 @@ function StepPlan({ selection, setSelection, onNext }) {
       <div className="gc-trust-strip-horizontal">
         <div className="gc-trust-item"><strong className="gc-mono">3M+</strong> traders worldwide</div>
         <div className="gc-trust-item"><strong>USDC</strong> crypto payments accepted</div>
-        <div className="gc-trust-item"><strong>16% off</strong> on annual billing</div>
+        <div className="gc-trust-item"><strong>7-day</strong> free trial · cancel anytime</div>
       </div>
 
       <button
@@ -2851,10 +3193,12 @@ function App() {
   const [summaryOpen, setSummaryOpen] = useState(false); // mobile collapsed bar state
   const [country, setCountry] = useState('US'); // 'US' | 'IN' | 'ROW'
 
+  // Selection model — one primary plan + optional bolt-ons (Oleg's "click product → add bolt-ons" flow)
   const [selection, setSelection] = useState({
-    futures: true,           // CME Futures Package selected
-    stocks: false,           // US Stocks selected
-    stocksLevel: STOCKS_L1,  // US Stocks Level 1 by default
+    primary: PLAN_FUTURES,       // 'futures' | 'stocks' — single-select primary
+    stocksLevel: STOCKS_L1,      // 'L1' | 'L23' — applies whenever Stocks is in the order
+    bundle: false,               // bolt-on: add the other market
+    annual: false,               // bolt-on: switch to annual billing (16% off)
   });
 
   const [form, setForm] = useState({
@@ -2872,18 +3216,29 @@ function App() {
   });
 
   const monthlyPrice = useMemo(() => {
+    const { primary, stocksLevel, bundle, annual } = selection;
     let total = 0;
-    if (selection.futures) total += PRICES[PLAN_FUTURES];
-    if (selection.stocks) total += PRICES[PLAN_STOCKS][selection.stocksLevel];
-    return total;
+    if (primary === PLAN_FUTURES) {
+      total += PRICES[PLAN_FUTURES];
+      if (bundle) total += PRICES[PLAN_STOCKS][stocksLevel];
+    } else if (primary === PLAN_STOCKS) {
+      total += PRICES[PLAN_STOCKS][stocksLevel];
+      if (bundle) total += PRICES[PLAN_FUTURES];
+    }
+    // Annual: 16% off the monthly equivalent
+    if (annual) total = total * 0.84;
+    return Math.round(total * 100) / 100;
   }, [selection]);
 
   const planName = useMemo(() => {
-    const { futures, stocks, stocksLevel } = selection;
-    const stocksLabel = stocksLevel === STOCKS_L23 ? 'US Stocks (Level 2 & 3)' : 'US Stocks (Level 1)';
-    if (futures && stocks) return `CME Futures + ${stocksLabel}`;
-    if (futures) return 'CME Futures Package';
-    if (stocks) return stocksLabel;
+    const { primary, stocksLevel, bundle } = selection;
+    const stocksLabel = stocksLevel === STOCKS_L23 ? 'US Stocks · Level 2 & 3' : 'US Stocks · Level 1';
+    if (primary === PLAN_FUTURES) {
+      return bundle ? `CME Futures + ${stocksLabel}` : 'CME Futures Package';
+    }
+    if (primary === PLAN_STOCKS) {
+      return bundle ? `${stocksLabel} + CME Futures` : stocksLabel;
+    }
     return 'GoCharting Trial';
   }, [selection]);
 
@@ -2897,7 +3252,7 @@ function App() {
       city: '', state: '', zip: '', country: 'US',
       nonProfessional: false, smsConsent: false, retentionAck: false,
     });
-    setSelection({ futures: true, stocks: false, stocksLevel: STOCKS_L1 });
+    setSelection({ primary: PLAN_FUTURES, stocksLevel: STOCKS_L1, bundle: false, annual: false });
   };
 
   // Scroll to top on step change
